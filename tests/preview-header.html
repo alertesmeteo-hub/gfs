@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Aperçu compact GFS v1.0.1</title>
+  <link rel="stylesheet" href="../wordpress/gfs-noaa-france/assets/gfs-meteo.css">
+  <link rel="stylesheet" href="../wordpress/gfs-noaa-france/assets/gfs-map.css">
+  <style>body{margin:0;padding:18px;background:#eef3f7;font-family:Inter,"Segoe UI",Arial,sans-serif}.preview{max-width:1480px;margin:auto}</style>
+</head>
+<body>
+<main class="preview">
+  <section class="gfs-card gfs-national">
+    <header class="gfs-header">
+      <div>
+        <p class="gfs-kicker">MODÈLE DÉTERMINISTE • FRANCE MÉTROPOLITAINE</p>
+        <h2>Prévisions GFS — Perpignan</h2>
+        <div class="gfs-header-details"><p class="gfs-city-altitude">Altitude de Perpignan : ≈ 6 m (point de grille GFS)</p><p class="gfs-meta">Run du 25/08/2026 14h00 • résolution 28,0 km • diagnostics orages + neige GFS</p></div>
+      </div>
+      <div class="gfs-badge"><span>GFS</span><strong>0,25°</strong></div>
+    </header>
+    <div class="gfs-toolbar">
+      <div class="gfs-search">
+        <div class="gfs-search-mainline">
+          <label for="city">Choisissez votre commune</label>
+          <div class="gfs-search-control"><span class="gfs-search-icon">⌕</span><input id="city" class="gfs-city-input" value="Perpignan"></div>
+          <button class="gfs-locate-button">📍 Détecter ma ville</button>
+          <p class="gfs-search-status">Prévisions affichées pour Perpignan (66000).</p>
+        </div>
+      </div>
+      <div class="gfs-coverage"><strong>34 746 communes</strong><span>Métropole et Corse</span></div>
+    </div>
+  </section>
+
+  <section class="gfs-card gfsm-card">
+    <div class="gfsm-toolbar">
+      <div class="gfsm-field gfsm-layer-picker"><span>Paramètre</span><button class="gfsm-layer-trigger"><span>Température à 2 m</span></button></div>
+      <div class="gfsm-tools"><button class="gfsm-tool-toggle">🔍 Zoom interactif</button><button class="gfsm-tool-toggle">📈 Diagramme</button></div>
+      <div class="gfsm-time-controls"><button>◀</button><button>▶</button><button>▶</button></div>
+      <div class="gfsm-validity-actions"><button class="gfsm-menu-close" aria-expanded="true"><span>Replier</span><span class="gfsm-menu-close-icon">⌃</span></button><div class="gfsm-validity"><span>Prévision valable</span><strong>mer. 26/08 08h00</strong><small>H+18</small></div></div>
+    </div>
+    <div class="gfsm-period-selector">
+      <div class="gfsm-period-head"><div><strong>Période du cumul de précipitations</strong><small>Déplacez les deux curseurs pour choisir précisément le début et la fin.</small></div><span>H+6 → H+30 • 24 h</span></div>
+      <div class="gfsm-dual-range" style="--gfsm-period-start:15%;--gfsm-period-end:65%"><div class="gfsm-dual-range-track"></div><input type="range" min="0" max="10" value="2"><input type="range" min="0" max="10" value="7"></div>
+      <div class="gfsm-period-values"><span><small>Du</small><strong>mer. 26/08 02h</strong></span><span><small>Au</small><strong>jeu. 27/08 02h</strong></span></div>
+    </div>
+  </section>
+</main>
+</body>
+</html>
