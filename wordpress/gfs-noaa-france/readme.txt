@@ -3,7 +3,7 @@ Contributors: alertesmeteo
 Tags: meteo, gfs, noaa, ncep, carte, previsions, avada
 Requires at least: 5.8
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,7 +17,7 @@ Le shortcode [gfs_meteo] affiche dans un seul module :
 * une recherche par ville ou code postal et la géolocalisation ;
 * les prévisions générales jusqu'à +240 h ;
 * quatre graphiques et des diagnostics orage/neige ;
-* les outils Zoom interactif, copie d’image, téléchargement PNG et diagramme au clic.
+* l’outil capture avec copie d’image et téléchargement PNG, plus le diagramme au clic.
 
 Les données proviennent directement de NOAA/NCEP, modèle GFS déterministe à 0,25°.
 
@@ -31,6 +31,11 @@ Les données proviennent directement de NOAA/NCEP, modèle GFS déterministe à 
 Exemple : [gfs_meteo code="75056" departement="75" ville="Paris" heures="240"]
 
 == Changelog ==
+
+= 1.0.2 =
+* Rapport cartographique Web Mercator corrigé pour supprimer l’aplatissement de la France.
+* Bouton Zoom interactif remplacé par Outil capture.
+* Zone de carte agrandie en hauteur tout en conservant l’échelle géographique.
 
 = 1.0.1 =
 * Requête NOAA NOMADS corrigée avec les champs GFS réellement disponibles.

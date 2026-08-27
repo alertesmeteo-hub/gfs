@@ -67,7 +67,7 @@
         var baseUrl = (app.dataset.baseUrl || '').replace(/\/+$/, '');
         var requestedLayer = app.dataset.variable || 'temperature';
         var timezone = app.dataset.timezone || 'Europe/Paris';
-        var moduleVersion = app.dataset.moduleVersion || '1.0.1';
+        var moduleVersion = app.dataset.moduleVersion || '1.0.2';
         var animationEnabled = app.dataset.animation !== '0';
         var reducedMotion = window.matchMedia &&
             window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -846,13 +846,16 @@
                 button.setAttribute('aria-pressed', active ? 'true' : 'false');
             });
             if (advancedTools) {
-                advancedTools.hidden = toolMode !== 'zoom';
+                advancedTools.hidden = toolMode !== 'capture';
             }
-            if (toolMode !== 'zoom') {
+            if (toolMode !== 'capture') {
                 pinnedEnabled = false;
                 clearPinned();
             }
-            if (toolMode === 'diagram') {
+            if (toolMode === 'capture') {
+                setToolHint('Choisissez Copier l’image ou Télécharger PNG sous la carte.');
+                closeDiagram();
+            } else if (toolMode === 'diagram') {
                 setToolHint('Cliquez sur la carte pour afficher le diagramme GFS du point choisi.');
             } else {
                 setToolHint('');

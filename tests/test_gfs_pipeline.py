@@ -4,6 +4,7 @@ import sys
 import tempfile
 import unittest
 import re
+import math
 from types import SimpleNamespace
 from pathlib import Path
 from unittest.mock import patch
@@ -17,10 +18,13 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from update_gfs_france import (  # noqa: E402
     GFS_NI,
+    MAP_HEIGHT,
+    MAP_WIDTH,
     MapSampler,
     NationalGrid,
     forecast_steps,
     grid_index,
+    latest_gfs_run_hint,
     message_field,
     normalize_gfs_units,
     storm_diagnostics,
@@ -48,10 +52,34 @@ class GFSGridTests(unittest.TestCase):
         self.assertEqual(steps[48], 144)
         self.assertEqual(steps[49], 147)
 
+    def test_four_daily_schedules_select_the_four_gfs_cycles(self) -> None:
+        expected = {
+            4: (26, 0),
+            10: (26, 6),
+            16: (26, 12),
+            22: (26, 18),
+            2: (25, 18),
+        }
+        for trigger_hour, (expected_day, expected_hour) in expected.items():
+            with self.subTest(trigger_hour=trigger_hour):
+                run = latest_gfs_run_hint(
+                    datetime(2026, 8, 26, trigger_hour, 30, tzinfo=timezone.utc)
+                )
+                self.assertEqual((run.day, run.hour, run.minute), (expected_day, expected_hour, 0))
+
     def test_map_sampling_covers_the_complete_domain(self) -> None:
         sampler = MapSampler(601, 180)
         self.assertEqual(sampler.target_latitudes.shape, (180,))
         self.assertEqual(sampler.target_longitudes.shape, (601,))
+
+    def test_map_pixels_preserve_web_mercator_scale(self) -> None:
+        north = math.radians(57.0)
+        south = math.radians(38.0)
+        vertical_span = math.log(math.tan(math.pi / 4 + north / 2)) - math.log(
+            math.tan(math.pi / 4 + south / 2)
+        )
+        expected_ratio = math.radians(30.0) / vertical_span
+        self.assertAlmostEqual(MAP_WIDTH / MAP_HEIGHT, expected_ratio, places=2)
 
     def test_noaa_south_to_north_subset_grid_is_supported(self) -> None:
         catalog = SimpleNamespace(

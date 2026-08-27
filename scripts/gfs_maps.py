@@ -24,7 +24,7 @@ from scipy.spatial import cKDTree
 
 
 MAP_SCHEMA_VERSION = 11
-MODULE_VERSION = "1.0.1"
+MODULE_VERSION = "1.0.2"
 # Une valeur numérique tous les deux pixels cartographiques : le survol reste
 # précis à l'échelle d'une commune sans multiplier déraisonnablement le poids
 # de la branche de données.
@@ -774,8 +774,8 @@ class GFSMapRenderer:
         longitudes: np.ndarray,
         output_directory: Path,
         *,
-        width: int = 2200,
-        height: int = 1640,
+        width: int = 2100,
+        height: int = 2000,
         bounds: dict[str, float] | None = None,
         source_max_distance: float = 0.22,
         france_latitudes: np.ndarray | None = None,

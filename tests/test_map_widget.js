@@ -61,6 +61,9 @@ class Element {
             if (selector === '[data-gfsm-layer-key]' && element.dataset.gfsmLayerKey) {
                 found.push(element);
             }
+            if (selector === '[data-gfsm-tool]' && element.dataset.gfsmTool) {
+                found.push(element);
+            }
             for (const child of element.children || []) visit(child);
         };
         visit(this);
@@ -159,10 +162,11 @@ elements.error.hidden = true;
 elements.stale.hidden = true;
 elements.probe.hidden = true;
 elements.period.hidden = true;
+elements['advanced-tools'].hidden = true;
 elements.probe.offsetWidth = 170;
 elements.probe.offsetHeight = 54;
 elements.viewport.clientWidth = 1000;
-elements.viewport.clientHeight = 745;
+elements.viewport.clientHeight = 952;
 elements.weather = new Canvas('weather');
 elements.vectors = new Canvas('vectors');
 elements.labels = new Canvas('labels');
@@ -170,8 +174,11 @@ elements.labels = new Canvas('labels');
 const app = new Element('section');
 app.dataset = {
     baseUrl: 'https://example.test/data', variable: 'temperature',
-    timezone: 'Europe/Paris', moduleVersion: '1.0.1', animation: '1'
+    timezone: 'Europe/Paris', moduleVersion: '1.0.2', animation: '1'
 };
+const captureTool = new Element('button');
+captureTool.dataset.gfsmTool = 'capture';
+app.appendChild(captureTool);
 app.querySelector = selector => {
     const match = selector.match(/^\[data-gfsm-([^\]]+)\]$/);
     return match ? elements[match[1]] : null;
@@ -254,7 +261,7 @@ const manifest = {
     }]
 };
 const places = { places: [['Paris', 2100000, 48.8566, 2.3522]] };
-const svg = '<svg viewBox="0 0 2200 1640"><path d="M0,0 L20,20" stroke="#222" stroke-width="0.8"/><path d="M0,0 L30,30" stroke="#111" stroke-width="1.45"/><path d="M0,0 L40,40" stroke="#000" stroke-width="2"/></svg>';
+const svg = '<svg viewBox="0 0 2100 2000"><path d="M0,0 L20,20" stroke="#222" stroke-width="0.8"/><path d="M0,0 L30,30" stroke="#111" stroke-width="1.45"/><path d="M0,0 L40,40" stroke="#000" stroke-width="2"/></svg>';
 
 function makeProbeBuffer(value) {
     const buffer = new ArrayBuffer(16 + 2 * 2 * 2);
@@ -300,10 +307,10 @@ async function fetchMock(url) {
 
 class ImageMock {
     constructor() {
-        this.naturalWidth = 2200;
-        this.naturalHeight = 1640;
-        this.width = 2200;
-        this.height = 1640;
+        this.naturalWidth = 2100;
+        this.naturalHeight = 2000;
+        this.width = 2100;
+        this.height = 2000;
     }
     set src(value) {
         this._src = value;
@@ -323,7 +330,7 @@ class DOMParserMock {
         }));
         return {
             documentElement: {
-                getAttribute(name) { return name === 'viewBox' ? '0 0 2200 1640' : null; },
+                getAttribute(name) { return name === 'viewBox' ? '0 0 2100 2000' : null; },
                 querySelectorAll(selector) { return selector === 'path' ? pathNodes : []; }
             }
         };
@@ -381,6 +388,10 @@ vm.runInNewContext(fs.readFileSync(scriptPath, 'utf8'), context, { filename: scr
     }
     assert.ok(counters.strokes >= 6, 'Les frontières et vecteurs météo n’ont pas été dessinés');
     assert.ok(counters.labels >= 1, 'Les noms de communes n’ont pas été dessinés');
+
+    captureTool.click();
+    assert.equal(elements['advanced-tools'].hidden, false, 'L’outil capture ne s’ouvre pas');
+    assert.equal(captureTool.attributes['aria-pressed'], 'true');
 
     elements.copy.click();
     await new Promise(resolve => setTimeout(resolve, 20));

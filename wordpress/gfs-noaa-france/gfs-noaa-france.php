@@ -3,7 +3,7 @@
  * Plugin Name: GFS / NOAA France — Tableaux et cartes
  * Plugin URI: https://github.com/alertesmeteo-hub/gfs
  * Description: Cartes interactives et prévisions du modèle déterministe NOAA GFS pour la France métropolitaine et la Corse.
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Alertes Météo Hub
  * Requires at least: 5.8
  * Requires PHP: 7.4
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('GFS_VERSION', '1.0.1');
+define('GFS_VERSION', '1.0.2');
 define('GFS_RELEASE_DATE', '26/08/2026');
 define('GFS_OPTION_BASE_URL', 'gfs_national_data_base_url');
 define(
@@ -202,7 +202,7 @@ function gfs_render_map_shortcode($atts) {
     $atts = shortcode_atts(
         array(
             'variable' => 'temperature',
-            'hauteur' => '700',
+            'hauteur' => '900',
             'titre' => 'Cartes GFS France',
             'animation' => 'oui',
         ),
@@ -211,7 +211,7 @@ function gfs_render_map_shortcode($atts) {
     );
 
     $variable = gfs_map_variable($atts['variable']);
-    $height = max(440, min(900, absint($atts['hauteur'])));
+    $height = max(440, min(1100, absint($atts['hauteur'])));
     $title = trim(sanitize_text_field($atts['titre']));
     if ($title === '') {
         $title = 'Cartes GFS France';
@@ -264,10 +264,10 @@ function gfs_render_map_shortcode($atts) {
                 <button
                     type="button"
                     class="gfsm-tool-toggle"
-                    data-gfsm-tool="zoom"
+                    data-gfsm-tool="capture"
                     aria-pressed="false"
                     title="Afficher les outils de capture et de copie"
-                >🔍 Zoom interactif</button>
+                >📷 Outil capture</button>
                 <button
                     type="button"
                     class="gfsm-tool-toggle"
@@ -553,7 +553,7 @@ function gfs_render_shortcode($atts) {
             echo gfs_render_map_shortcode(
                 array(
                     'variable' => 'temperature',
-                    'hauteur' => '760',
+                    'hauteur' => '900',
                     'titre' => 'Cartes NOAA GFS — résolution 0,25°',
                     'animation' => 'oui',
                 )

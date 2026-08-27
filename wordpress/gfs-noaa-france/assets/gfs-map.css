@@ -325,8 +325,8 @@
 
 .gfsm-viewport {
     position: relative;
-    width: min(100%, calc(var(--gfsm-height) * 1.341463));
-    aspect-ratio: 55 / 41;
+    width: min(100%, calc(var(--gfsm-height) * 1.05));
+    aspect-ratio: 21 / 20;
     max-height: var(--gfsm-height);
     margin: 0 auto;
     overflow: hidden;
@@ -1040,6 +1040,6 @@
 
     .gfsm-viewport {
         width: 100%;
-        aspect-ratio: 55 / 41;
+        aspect-ratio: 21 / 20;
     }
 }

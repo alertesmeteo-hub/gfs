@@ -36,13 +36,13 @@ from gfs_maps import DEFAULT_BOUNDS, GFSMapRenderer
 
 
 LOGGER = logging.getLogger("gfs.france")
-PIPELINE_VERSION = "1.0.1"
+PIPELINE_VERSION = "1.0.3"
 DATASET_PAGE = "https://www.ncei.noaa.gov/products/weather-climate-models/global-forecast"
 DEFAULT_CURRENT_METADATA_URL = (
     "https://raw.githubusercontent.com/alertesmeteo-hub/"
     "gfs/data/index.json"
 )
-USER_AGENT = "alertes-meteo.com/gfs-noaa-france/1.0.1"
+USER_AGENT = "alertes-meteo.com/gfs-noaa-france/1.0.3"
 
 # Grille mondiale régulière GFS 0,25°.
 GFS_NI = 1440
@@ -51,8 +51,11 @@ GFS_LAT_FIRST = 90.0
 GFS_LON_FIRST = 0.0
 GFS_STEP = 0.25
 
-MAP_WIDTH = 2200
-MAP_HEIGHT = 1640
+# Rapport Web Mercator réel des limites -12/18° et 38/57° : environ 1,05.
+# Utiliser le même nombre de pixels par unité projetée sur les deux axes évite
+# d'aplatir visuellement la France.
+MAP_WIDTH = 2100
+MAP_HEIGHT = 2000
 
 # Format compact partagé avec le JavaScript. Les diagnostics explicitement
 # dérivés sont conservés car ils servent aux tableaux orages et neige.
@@ -1113,6 +1116,18 @@ def forecast_steps(forecast_hours: int) -> list[int]:
     return list(range(0, forecast_hours + 1, 3))
 
 
+def latest_gfs_run_hint(now: datetime | None = None) -> datetime:
+    """Choisit le dernier cycle 00/06/12/18 disponible depuis au moins 4 h."""
+    reference = now or datetime.now(timezone.utc)
+    if reference.tzinfo is None:
+        reference = reference.replace(tzinfo=timezone.utc)
+    available = reference.astimezone(timezone.utc) - timedelta(hours=4)
+    cycle_hour = (available.hour // 6) * 6
+    return available.replace(
+        hour=cycle_hour, minute=0, second=0, microsecond=0
+    )
+
+
 def retrieve_gfs_step(run_time: datetime, lead: int, destination: Path) -> None:
     """Télécharge l'extraction Europe nécessaire, via le filtre NOMADS."""
     cycle = f"{run_time.hour:02d}"
@@ -1381,9 +1396,7 @@ def main() -> int:
     if not 3 <= args.forecast_hours <= 240:
         raise ValueError("forecast-hours doit être compris entre 3 et 240")
     catalog = load_catalog(Path(args.catalog))
-    run_hint = datetime.now(timezone.utc).replace(
-        hour=0, minute=0, second=0, microsecond=0
-    )
+    run_hint = latest_gfs_run_hint()
     LOGGER.info("Run GFS sélectionné : %s", iso_utc(run_hint))
     if not args.force and already_published(
         args.current_metadata_url, run_hint
