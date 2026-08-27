@@ -60,10 +60,13 @@ jobs:
           maps = json.loads((root / "maps/index.json").read_text(encoding="utf-8"))
           assert index["status"] == "ok"
           assert index["model"]["provider"] == "NOAA / NCEP"
-          assert index["model"]["pipeline_version"] == "1.0.3"
+          assert index["model"]["pipeline_version"] == "1.1.0"
           assert index["coverage"]["communes"] == 34746
           assert index["coverage"]["departments"] == 96
-          assert len(maps["layers"]) >= 8
+          assert len(maps["layers"]) >= 75
+          assert maps["layers"]["temperature"]["secondary"] is False
+          assert maps["layers"]["temperature_10"]["secondary"] is True
+          assert maps["layers"]["vent_850"]["vector_label"]
           assert len(maps["steps"]) == 81
           assert (root / "departements/66.json").is_file()
           print(
