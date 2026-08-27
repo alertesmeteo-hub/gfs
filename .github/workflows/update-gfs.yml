@@ -3,8 +3,8 @@ name: Mise à jour GFS France
 on:
   workflow_dispatch:
   schedule:
-    # Une production quotidienne vers 10 h en France :
-    # 10 h 30 en heure d'été, 9 h 30 en heure d'hiver.
+    # Quatre productions quotidiennes, après disponibilité des runs
+    # NOAA GFS 00, 06, 12 et 18 UTC.
     - cron: "30 4,10,16,22 * * *"
 
 permissions:
@@ -60,7 +60,7 @@ jobs:
           maps = json.loads((root / "maps/index.json").read_text(encoding="utf-8"))
           assert index["status"] == "ok"
           assert index["model"]["provider"] == "NOAA / NCEP"
-          assert index["model"]["pipeline_version"] == "1.0.1"
+          assert index["model"]["pipeline_version"] == "1.0.3"
           assert index["coverage"]["communes"] == 34746
           assert index["coverage"]["departments"] == 96
           assert len(maps["layers"]) >= 8
