@@ -23,8 +23,8 @@ from PIL import Image
 from scipy.spatial import cKDTree
 
 
-MAP_SCHEMA_VERSION = 11
-MODULE_VERSION = "1.0.2"
+MAP_SCHEMA_VERSION = 12
+MODULE_VERSION = "1.1.0"
 # Une valeur numérique tous les deux pixels cartographiques : le survol reste
 # précis à l'échelle d'une commune sans multiplier déraisonnablement le poids
 # de la branche de données.
@@ -159,6 +159,107 @@ PRECIPITATION_STOPS = (
 )
 
 
+TEMPERATURE_STOPS = (
+    (-60, "#25104f"), (-40, "#303fa5"), (-25, "#3478c5"),
+    (-10, "#3da6cf"), (0, "#55b7dd"), (10, "#53c6a8"),
+    (20, "#cbd83f"), (30, "#f2a331"), (40, "#d93435"),
+    (50, "#5b1037"),
+)
+UPPER_WIND_STOPS = (
+    (0, "#eef7ea"), (30, "#a7db8d"), (60, "#43b894"),
+    (90, "#347cc3"), (120, "#6558b8"), (160, "#a43e94"),
+    (220, "#d63c57"), (280, "#7e1736"), (350, "#35132b"),
+)
+HUMIDITY_STOPS = (
+    (0, "#9a5429"), (20, "#d19a52"), (40, "#e3d16b"),
+    (60, "#83ca82"), (80, "#48a6b6"), (100, "#28569f"),
+)
+CAPE_STOPS = (
+    (0, "#f3f5f8"), (100, "#d8ebff"), (300, "#91c8ff"),
+    (500, "#41a8df"), (800, "#31c878"), (1200, "#d5e52f"),
+    (1800, "#ffc62d"), (2500, "#ff7a22"), (3500, "#e83028"),
+    (5000, "#8c1d74"),
+)
+REFLECTIVITY_STOPS = (
+    (0, "#f5f5f7"), (5, "#c9e6ff"), (10, "#7fbbff"),
+    (15, "#25cbe0"), (20, "#00bd75"), (25, "#5be000"),
+    (30, "#d5eb00"), (35, "#ffe500"), (40, "#ffae00"),
+    (45, "#ff6500"), (50, "#f32020"), (55, "#d00076"),
+    (60, "#9300c6"), (70, "#ffffff"),
+)
+HEIGHT_STOPS = (
+    (0, "#482173"), (500, "#3456a4"), (1000, "#328ac0"),
+    (2000, "#48b99a"), (3000, "#b5d04d"), (5000, "#efad3b"),
+    (8000, "#cf493e"), (12000, "#70234f"),
+)
+DIVERGING_STOPS = (
+    (-20, "#38246d"), (-10, "#356db2"), (-5, "#49a8c5"),
+    (0, "#f1f1e8"), (5, "#e8ca4d"), (10, "#df793b"),
+    (20, "#a9324c"),
+)
+FLUX_STOPS = (
+    (-300, "#2c2876"), (-100, "#397fbc"), (-20, "#55c1ba"),
+    (0, "#e7e8d0"), (50, "#e7cf4e"), (200, "#e47b38"),
+    (500, "#aa3049"),
+)
+
+
+PRIMARY_LAYER_KEYS = {
+    "temperature", "temperature_max_12h", "temperature_min_12h",
+    "point_rosee", "pluie_totale", "pluie_1h", "pluie_cumul",
+    "neige_au_sol", "equivalent_eau_neige", "vent", "rafales",
+    "rafales_max", "vent_850", "jet_stream", "nuages_bas",
+    "nuages_moyens", "nuages_eleves", "nebulosite", "humidite",
+    "sbcape", "mlcape", "mucape", "geopotentiel_500", "iso_zero",
+    "synthese", "reflectivite", "altitude",
+}
+
+# Contrat fonctionnel du menu demandé : toute modification du pipeline peut
+# être contrôlée automatiquement contre cette liste.
+REQUESTED_GFS_LAYER_KEYS = {
+    "temperature", "temperature_max_12h", "temperature_min_12h",
+    "point_rosee", "humidex", "temperature_ressentie",
+    "temperature_surface", "temperature_sol", "temperature_850",
+    "temperature_700", "temperature_500", "temperature_10", "theta_e_850",
+    "pluie_totale", "pluie_1h", "taux_precipitations_convectives",
+    "neige_au_sol", "equivalent_eau_neige", "precipitations_convectives",
+    "eau_precipitable", "ruissellement", "vent", "rafales", "rafales_max",
+    "vent_100", "vent_850", "vent_500", "vent_200", "vent_700",
+    "vent_925", "vent_950", "jet_stream", "storm_motion",
+    "taux_ventilation", "nuages_bas", "nuages_moyens", "nuages_eleves",
+    "nebulosite", "composition_nuages", "base_nuages", "humidite",
+    "humidite_850", "humidite_700", "visibilite", "sbcape", "mlcape",
+    "cape_0_180", "cin", "mucin", "mlcin", "mucape", "muli",
+    "lifted_index_surface", "best_lifted_index", "srh_0_3", "haines",
+    "cloud_work", "pression_parcelle", "geopotentiel_500", "iso_zero",
+    "niveau_congelation", "pression_tropopause", "vitesse_verticale",
+    "tourbillon_500", "tourbillon_900", "surface_pvu", "synthese",
+    "reflectivite", "reflectivite_1km", "reflectivite_4km", "altitude",
+    "humidite_sol_liquide", "humidite_sol_volumetrique",
+    "flux_chaleur_sensible", "flux_chaleur_latente",
+    "rayonnement_solaire_descendant", "rayonnement_thermique_descendant",
+}
+
+WIND_VECTOR_LABEL = "isobares 4 hPa et flèches de vent"
+VECTOR_LABELS = {
+    "temperature": "isothermes tous les 2 °C",
+    "mucape": "isolignes MULI tous les 2 K",
+    "geopotentiel_500": "pression mer en isobares de 4 hPa",
+    **{
+        key: WIND_VECTOR_LABEL
+        for key in (
+            "vent", "rafales", "rafales_max", "vent_100", "vent_850",
+            "vent_700", "vent_500", "vent_300", "vent_200",
+            "vent_925", "vent_950", "jet_stream", "storm_motion",
+        )
+    },
+}
+GROUP_ALIASES = {
+    "Nuages et humidité": "Nuages & Humidité",
+    "Pression, instabilité et relief": "Pression & Géopotentiel",
+}
+
+
 LAYER_SPECS = (
     LayerSpec(
         "temperature",
@@ -285,7 +386,7 @@ LAYER_SPECS = (
     ),
     LayerSpec(
         "pluie_1h",
-        "Précipitations depuis l’échéance précédente",
+        "Précipitations sur la dernière période",
         "mm",
         "precipitation_mm",
         tuple(stop for stop in PRECIPITATION_STOPS if stop[0] <= 100),
@@ -306,6 +407,7 @@ LAYER_SPECS = (
         transparent_below=0.03,
         opacity=255,
         discrete=True,
+        source_key="pluie_totale",
         range_mode="difference",
     ),
     LayerSpec(
@@ -322,7 +424,7 @@ LAYER_SPECS = (
     ),
     LayerSpec(
         "neige_au_sol",
-        "Cumul de neige fraîche (estimé)",
+        "Hauteur de neige",
         "cm",
         "snow_depth_cm",
         (
@@ -438,7 +540,7 @@ LAYER_SPECS = (
     ),
     LayerSpec(
         "jet_stream",
-        "Vent à 300 hPa (jet stream)",
+        "Jet stream (300 hPa)",
         "km/h",
         "wind_speed_300_kmh",
         (
@@ -463,7 +565,7 @@ LAYER_SPECS = (
             (1030, "#e57a34"),
             (1045, "#b52f43"),
         ),
-        group="Pression, instabilité et relief",
+        group="Pression & Géopotentiel",
     ),
     LayerSpec(
         "pression_surface",
@@ -475,11 +577,11 @@ LAYER_SPECS = (
             (950, "#54bf7c"), (1000, "#d6d64c"), (1030, "#ed9a36"),
             (1060, "#b52f43"),
         ),
-        group="Pression, instabilité et relief",
+        group="Pression & Géopotentiel",
     ),
     LayerSpec(
         "geopotentiel_500",
-        "Géopotentiel à 500 hPa",
+        "Géopotentiel 500 hPa et pression mer",
         "m",
         "geopotential_500_m",
         (
@@ -487,7 +589,7 @@ LAYER_SPECS = (
             (5400, "#3cb9aa"), (5600, "#b5d04d"), (5800, "#efad3b"),
             (6000, "#cf493e"),
         ),
-        group="Pression, instabilité et relief",
+        group="Pression & Géopotentiel",
     ),
     LayerSpec(
         "geopotentiel_850",
@@ -499,7 +601,7 @@ LAYER_SPECS = (
             (1500, "#3cb9aa"), (1700, "#b5d04d"), (1900, "#efad3b"),
             (2100, "#cf493e"),
         ),
-        group="Pression, instabilité et relief",
+        group="Pression & Géopotentiel",
     ),
     LayerSpec(
         "nebulosite",
@@ -578,7 +680,7 @@ LAYER_SPECS = (
     ),
     LayerSpec(
         "visibilite",
-        "Visibilité",
+        "Visibilité minimale",
         "km",
         "visibility_km",
         (
@@ -617,9 +719,9 @@ LAYER_SPECS = (
     ),
     LayerSpec(
         "base_nuages",
-        "Altitude de la base des nuages",
+        "Plafond nuageux",
         "m",
-        "cloud_base_m",
+        "cloud_ceiling_m",
         (
             (0, "#5c2447"), (100, "#a33a45"), (200, "#df6b3e"),
             (500, "#e6b846"), (1000, "#9bcb72"), (2000, "#59b3bd"),
@@ -706,21 +808,21 @@ LAYER_SPECS = (
     ),
     LayerSpec(
         "mucape",
-        "MUCAPE instantanée",
+        "MUCAPE et MULI",
         "J/kg",
-        "cape_jkg",
+        "mucape_jkg",
         (
             (0, "#f3f5f8"), (100, "#d8ebff"), (300, "#91c8ff"),
             (500, "#41a8df"), (800, "#31c878"), (1200, "#d5e52f"),
             (1800, "#ffc62d"), (2500, "#ff7a22"), (3500, "#e83028"),
             (5000, "#8c1d74"),
         ),
-        group="Pression, instabilité et relief",
+        group="Instabilité",
         transparent_below=25.0,
     ),
     LayerSpec(
         "reflectivite",
-        "Réflectivité radar maximale",
+        "Réflectivité composite",
         "dBZ",
         "reflectivity_dbz",
         (
@@ -730,7 +832,7 @@ LAYER_SPECS = (
             (45, "#ff6500"), (50, "#f32020"), (55, "#d00076"),
             (60, "#9300c6"), (70, "#ffffff"),
         ),
-        group="Pression, instabilité et relief",
+        group="Temps sensible",
         transparent_below=5.0,
     ),
     LayerSpec(
@@ -744,7 +846,283 @@ LAYER_SPECS = (
             (1500, "#966b52"), (2200, "#765054"), (3200, "#eeeeee"),
             (4500, "#ffffff"),
         ),
-        group="Pression, instabilité et relief",
+        group="Autres",
+    ),
+    LayerSpec(
+        "temperature_max_12h", "Température maximale à 2 m sur 12 h", "°C",
+        "temperature_max_12h_c", TEMPERATURE_STOPS,
+        group="Températures", decimals=1,
+    ),
+    LayerSpec(
+        "temperature_min_12h", "Température minimale à 2 m sur 12 h", "°C",
+        "temperature_min_12h_c", TEMPERATURE_STOPS,
+        group="Températures", decimals=1,
+    ),
+    LayerSpec(
+        "temperature_sol", "Température du sol (0-10 cm)", "°C",
+        "soil_temperature_c", TEMPERATURE_STOPS,
+        group="Températures", decimals=1,
+    ),
+    LayerSpec(
+        "temperature_700", "Température à 700 hPa", "°C",
+        "temperature_700_c", TEMPERATURE_STOPS,
+        group="Températures", decimals=1,
+    ),
+    LayerSpec(
+        "temperature_10", "Température à 10 hPa", "°C",
+        "temperature_10_c", TEMPERATURE_STOPS,
+        group="Températures", decimals=1,
+    ),
+    LayerSpec(
+        "theta_e_850", "Theta-E à 850 hPa", "K", "theta_e_850_k",
+        ((240, "#38246d"), (260, "#356db2"), (280, "#49a8c5"),
+         (300, "#62c987"), (320, "#d8d64c"), (340, "#ef9838"),
+         (360, "#d74343"), (390, "#741e54")),
+        group="Températures", decimals=1,
+    ),
+    LayerSpec(
+        "pluie_totale", "Précipitations totales", "mm",
+        "precipitation_total_mm", PRECIPITATION_STOPS,
+        group="Précipitations", decimals=1, transparent_below=0.03,
+        opacity=255, discrete=True,
+    ),
+    LayerSpec(
+        "taux_precipitations_convectives",
+        "Taux de précipitations convectives", "mm/h",
+        "convective_rate_mmh", tuple(stop for stop in PRECIPITATION_STOPS if stop[0] <= 100),
+        group="Précipitations", decimals=2, transparent_below=0.03,
+        opacity=255, discrete=True,
+    ),
+    LayerSpec(
+        "precipitations_convectives", "Précipitations convectives", "mm",
+        "convective_precipitation_mm",
+        tuple(stop for stop in PRECIPITATION_STOPS if stop[0] <= 150),
+        group="Précipitations", decimals=1, transparent_below=0.03,
+        opacity=255, discrete=True,
+    ),
+    LayerSpec(
+        "eau_precipitable", "Eau précipitable", "mm",
+        "precipitable_water_mm",
+        ((0, "#7b3f2d"), (10, "#c48a4b"), (20, "#d9cf63"),
+         (30, "#70c886"), (40, "#43b7c8"), (50, "#397fc1"),
+         (65, "#554ea0"), (80, "#8e3c86")),
+        group="Précipitations", decimals=1,
+    ),
+    LayerSpec(
+        "ruissellement", "Ruissellement de surface cumulé", "mm",
+        "runoff_total_mm", tuple(stop for stop in PRECIPITATION_STOPS if stop[0] <= 200),
+        group="Précipitations", decimals=1, transparent_below=0.03,
+        opacity=255, discrete=True,
+    ),
+    LayerSpec(
+        "vent_100", "Vent à 100 m", "km/h", "wind_speed_100_kmh",
+        UPPER_WIND_STOPS, group="Vent",
+    ),
+    LayerSpec(
+        "vent_700", "Vent à 700 hPa", "km/h", "wind_speed_700_kmh",
+        UPPER_WIND_STOPS, group="Vent",
+    ),
+    LayerSpec(
+        "vent_925", "Vent à 925 hPa", "km/h", "wind_speed_925_kmh",
+        UPPER_WIND_STOPS, group="Vent",
+    ),
+    LayerSpec(
+        "vent_950", "Vent à 950 hPa", "km/h", "wind_speed_950_kmh",
+        UPPER_WIND_STOPS, group="Vent",
+    ),
+    LayerSpec(
+        "vent_200", "Vent à 200 hPa (jet stream)", "km/h", "wind_speed_200_kmh",
+        UPPER_WIND_STOPS, group="Vent",
+    ),
+    LayerSpec(
+        "storm_motion", "Storm Motion", "km/h", "storm_motion_kmh",
+        UPPER_WIND_STOPS, group="Vent",
+    ),
+    LayerSpec(
+        "taux_ventilation", "Taux de ventilation", "m²/s",
+        "ventilation_rate_m2s",
+        ((0, "#edece4"), (1000, "#b8d999"), (3000, "#61bd9e"),
+         (6000, "#3d91bd"), (10000, "#625bad"), (16000, "#a13f80"),
+         (24000, "#7b203f")),
+        group="Vent",
+    ),
+    LayerSpec(
+        "composition_nuages", "Nébulosité (composition)", "classe",
+        "cloud_composition_code",
+        ((0, "#e9f4f8"), (1, "#9ed1e0"), (2, "#8fb3d4"),
+         (3, "#628fae"), (4, "#a7a7ce"), (5, "#7d86af"),
+         (6, "#646b91"), (7, "#393f52")),
+        group="Nuages & Humidité", discrete=True,
+    ),
+    LayerSpec(
+        "humidite_700", "Humidité relative à 700 hPa", "%",
+        "humidity_700_pct", HUMIDITY_STOPS,
+        group="Nuages & Humidité",
+    ),
+    LayerSpec(
+        "sbcape", "SBCAPE", "J/kg", "sbcape_jkg", CAPE_STOPS,
+        group="Instabilité", transparent_below=25.0,
+    ),
+    LayerSpec(
+        "mlcape", "MLCAPE", "J/kg", "mlcape_jkg", CAPE_STOPS,
+        group="Instabilité", transparent_below=25.0,
+    ),
+    LayerSpec(
+        "cape_0_180", "CAPE 0-180 hPa", "J/kg", "mlcape_jkg", CAPE_STOPS,
+        group="Instabilité", transparent_below=25.0, source_key="mlcape",
+    ),
+    LayerSpec(
+        "cin", "CIN", "J/kg", "sbcin_jkg",
+        ((-500, "#321253"), (-250, "#3f3191"), (-100, "#315fae"),
+         (-50, "#398fc7"), (-25, "#70c5bd"), (0, "#f1f1e8")),
+        group="Instabilité", decimals=1,
+    ),
+    LayerSpec(
+        "mucin", "MUCIN", "J/kg", "mucin_jkg",
+        ((-500, "#321253"), (-250, "#3f3191"), (-100, "#315fae"),
+         (-50, "#398fc7"), (-25, "#70c5bd"), (0, "#f1f1e8")),
+        group="Instabilité", decimals=1,
+    ),
+    LayerSpec(
+        "mlcin", "MLCIN", "J/kg", "mlcin_jkg",
+        ((-500, "#321253"), (-250, "#3f3191"), (-100, "#315fae"),
+         (-50, "#398fc7"), (-25, "#70c5bd"), (0, "#f1f1e8")),
+        group="Instabilité", decimals=1,
+    ),
+    LayerSpec(
+        "muli", "Most Unstable Lifted Index (MULI)", "K",
+        "best_lifted_index_k", DIVERGING_STOPS,
+        group="Instabilité", decimals=1, source_key="best_lifted_index",
+    ),
+    LayerSpec(
+        "lifted_index_surface", "Lifted Index de surface", "K",
+        "surface_lifted_index_k", DIVERGING_STOPS,
+        group="Instabilité", decimals=1,
+    ),
+    LayerSpec(
+        "best_lifted_index", "Best (4-layer) Lifted Index", "K",
+        "best_lifted_index_k", DIVERGING_STOPS,
+        group="Instabilité", decimals=1,
+    ),
+    LayerSpec(
+        "srh_0_3", "SRH 0-3 km", "m²/s²", "srh_0_3_m2s2",
+        ((-500, "#38246d"), (-250, "#356db2"), (-100, "#49a8c5"),
+         (0, "#f1f1e8"), (100, "#e8ca4d"), (250, "#df793b"),
+         (500, "#a9324c")),
+        group="Instabilité",
+    ),
+    LayerSpec(
+        "haines", "Indice de Haines", "indice", "haines_index",
+        ((2, "#4a87b8"), (3, "#6fbd92"), (4, "#d6d64d"),
+         (5, "#ed8c39"), (6, "#c63843")),
+        group="Instabilité", discrete=True,
+    ),
+    LayerSpec(
+        "cloud_work", "Cloud Work Function", "J/kg", "cloud_work_jkg",
+        ((0, "#f3f5f8"), (100, "#bbdef5"), (300, "#72b9db"),
+         (600, "#4dbd9c"), (1000, "#c7d34b"), (1500, "#ef9b39"),
+         (2500, "#c83c48")),
+        group="Instabilité",
+    ),
+    LayerSpec(
+        "pression_parcelle", "Pression de soulèvement de parcelle", "hPa",
+        "parcel_lift_pressure_hpa",
+        ((400, "#482173"), (550, "#3855a3"), (700, "#398bca"),
+         (800, "#58c8a2"), (900, "#d5d64a"), (1000, "#df5d3c")),
+        group="Instabilité",
+    ),
+    LayerSpec(
+        "iso_zero", "ISO 0 °C", "m", "freezing_level_m", HEIGHT_STOPS,
+        group="Pression & Géopotentiel",
+    ),
+    LayerSpec(
+        "niveau_congelation", "Niveau de congélation troposphérique", "m",
+        "highest_freezing_level_m", HEIGHT_STOPS,
+        group="Pression & Géopotentiel",
+    ),
+    LayerSpec(
+        "pression_tropopause", "Pression tropopause", "hPa",
+        "tropopause_pressure_hpa",
+        ((70, "#6b1f70"), (100, "#4b4aa7"), (150, "#397fc1"),
+         (200, "#43b7c8"), (300, "#70c886"), (450, "#d9cf63")),
+        group="Pression & Géopotentiel",
+    ),
+    LayerSpec(
+        "vitesse_verticale", "Vitesse verticale à 700 hPa", "Pa/s",
+        "vertical_velocity_700_pas",
+        ((-5, "#38246d"), (-2, "#356db2"), (-0.5, "#49a8c5"),
+         (0, "#f1f1e8"), (0.5, "#e8ca4d"), (2, "#df793b"),
+         (5, "#a9324c")),
+        group="Dynamique", decimals=2,
+    ),
+    LayerSpec(
+        "tourbillon_500", "Tourbillon absolu à 500 hPa", "10⁻⁵ s⁻¹",
+        "absolute_vorticity_500_1e5s", DIVERGING_STOPS,
+        group="Dynamique", decimals=1,
+    ),
+    LayerSpec(
+        "tourbillon_900", "Tourbillon absolu à 900 hPa", "10⁻⁵ s⁻¹",
+        "absolute_vorticity_900_1e5s", DIVERGING_STOPS,
+        group="Dynamique", decimals=1,
+    ),
+    LayerSpec(
+        "surface_pvu", "Altitude de la surface 2 PVU (GFS)", "m",
+        "pv_surface_height_m", HEIGHT_STOPS,
+        group="Dynamique",
+    ),
+    LayerSpec(
+        "synthese", "Synthèse", "code", "weather_code",
+        ((0, "#d9ecf3"), (1, "#ffe16a"), (2, "#c9d8df"),
+         (3, "#9eaeb8"), (4, "#697985"), (5, "#3b9bd3"),
+         (6, "#2855a5"), (7, "#ddd8f7"), (8, "#b7b7b7"),
+         (9, "#d94b46")),
+        group="Temps sensible", discrete=True,
+    ),
+    LayerSpec(
+        "reflectivite_1km", "Réflectivité à 1 km", "dBZ",
+        "reflectivity_1000_dbz", REFLECTIVITY_STOPS,
+        group="Temps sensible", transparent_below=5.0,
+    ),
+    LayerSpec(
+        "reflectivite_4km", "Réflectivité à 4 km", "dBZ",
+        "reflectivity_4000_dbz", REFLECTIVITY_STOPS,
+        group="Temps sensible", transparent_below=5.0,
+    ),
+    LayerSpec(
+        "humidite_sol_liquide", "Humidité liquide du sol (0-10 cm)", "%",
+        "soil_moisture_liquid_pct", HUMIDITY_STOPS,
+        group="Autres", decimals=1,
+    ),
+    LayerSpec(
+        "humidite_sol_volumetrique", "Humidité volumétrique du sol (0-10 cm)", "%",
+        "soil_moisture_vol_pct", HUMIDITY_STOPS,
+        group="Autres", decimals=1,
+    ),
+    LayerSpec(
+        "flux_chaleur_sensible", "Flux de chaleur sensible", "W/m²",
+        "sensible_heat_flux_wm2", FLUX_STOPS,
+        group="Autres",
+    ),
+    LayerSpec(
+        "flux_chaleur_latente", "Flux de chaleur latente", "W/m²",
+        "latent_heat_flux_wm2", FLUX_STOPS,
+        group="Autres",
+    ),
+    LayerSpec(
+        "rayonnement_solaire_descendant", "Rayonnement solaire descendant", "W/m²",
+        "downward_shortwave_wm2",
+        ((0, "#24346f"), (100, "#346aa5"), (250, "#3da6b3"),
+         (500, "#72c776"), (750, "#d4d74c"), (1000, "#f3b53d"),
+         (1300, "#e36b35")),
+        group="Autres",
+    ),
+    LayerSpec(
+        "rayonnement_thermique_descendant", "Rayonnement thermique descendant", "W/m²",
+        "downward_longwave_wm2",
+        ((100, "#352061"), (200, "#345e9f"), (250, "#39a3b5"),
+         (300, "#77c66e"), (350, "#d5d54a"), (400, "#f0a33b"),
+         (500, "#c63d43")),
+        group="Autres",
     ),
 )
 
@@ -952,13 +1330,16 @@ class GFSMapRenderer:
         un point hors domaine ou manquant.
         """
 
+        probe_downsample = (
+            PROBE_DOWNSAMPLE if spec.key in PRIMARY_LAYER_KEYS else 4
+        )
         sampled = np.asarray(
-            field[::PROBE_DOWNSAMPLE, ::PROBE_DOWNSAMPLE],
+            field[::probe_downsample, ::probe_downsample],
             dtype=np.float32,
         )
         coverage = self._coverage_mask[
-            ::PROBE_DOWNSAMPLE,
-            ::PROBE_DOWNSAMPLE,
+            ::probe_downsample,
+            ::probe_downsample,
         ]
         minimum = (
             0.0
@@ -1026,7 +1407,7 @@ class GFSMapRenderer:
         self,
         field: np.ndarray,
         levels: Sequence[float],
-        stride: int = 8,
+        stride: int = 6,
         label_candidates: dict[float, list[tuple[float, float]]] | None = None,
     ) -> str:
         sampled = np.asarray(field[::stride, ::stride], dtype=np.float32)
@@ -1040,6 +1421,9 @@ class GFSMapRenderer:
         }
         commands: list[str] = []
         for level in levels:
+            segments: list[
+                tuple[tuple[float, float], tuple[float, float]]
+            ] = []
             for y in range(sampled.shape[0] - 1):
                 for x in range(sampled.shape[1] - 1):
                     values = (
@@ -1061,15 +1445,125 @@ class GFSMapRenderer:
                         second = self._edge_point(
                             second_edge, x, y, values, level, stride
                         )
-                        commands.append(
-                            f"M{first[0]:.1f},{first[1]:.1f} "
-                            f"L{second[0]:.1f},{second[1]:.1f}"
-                        )
-                        if label_candidates is not None:
-                            label_candidates.setdefault(float(level), []).append((
-                                (first[0] + second[0]) / 2.0,
-                                (first[1] + second[1]) / 2.0,
-                            ))
+                        segments.append((first, second))
+            for points, closed in self._stitch_contour_segments(segments):
+                commands.append(self._catmull_rom_svg_path(points, closed))
+                if label_candidates is not None and len(points) >= 2:
+                    spacing = max(1, len(points) // 10)
+                    label_candidates.setdefault(float(level), []).extend(
+                        points[index]
+                        for index in range(spacing // 2, len(points), spacing)
+                    )
+        return " ".join(commands)
+
+    @staticmethod
+    def _contour_point_key(point: tuple[float, float]) -> tuple[int, int]:
+        """Clé sous-pixel stable pour réunir les segments voisins."""
+        return int(round(point[0] * 100)), int(round(point[1] * 100))
+
+    @classmethod
+    def _stitch_contour_segments(
+        cls,
+        segments: Sequence[
+            tuple[tuple[float, float], tuple[float, float]]
+        ],
+    ) -> list[tuple[list[tuple[float, float]], bool]]:
+        """Transforme les petits segments Marching Squares en courbes continues."""
+        if not segments:
+            return []
+        adjacency: dict[tuple[int, int], list[tuple[int, int]]] = {}
+        for index, segment in enumerate(segments):
+            for endpoint in (0, 1):
+                adjacency.setdefault(
+                    cls._contour_point_key(segment[endpoint]), []
+                ).append((index, endpoint))
+
+        unused = set(range(len(segments)))
+        polylines: list[tuple[list[tuple[float, float]], bool]] = []
+        while unused:
+            seed = next(iter(unused))
+            unused.remove(seed)
+            points = [segments[seed][0], segments[seed][1]]
+            closed = False
+            for at_front in (False, True):
+                if closed:
+                    break
+                while True:
+                    current = points[0] if at_front else points[-1]
+                    current_key = cls._contour_point_key(current)
+                    candidates = [
+                        item for item in adjacency.get(current_key, ())
+                        if item[0] in unused
+                    ]
+                    if not candidates:
+                        break
+                    segment_index, endpoint = candidates[0]
+                    unused.remove(segment_index)
+                    next_point = segments[segment_index][1 - endpoint]
+                    if at_front:
+                        points.insert(0, next_point)
+                    else:
+                        points.append(next_point)
+                    if (
+                        cls._contour_point_key(points[0])
+                        == cls._contour_point_key(points[-1])
+                        and len(points) >= 4
+                    ):
+                        closed = True
+                        break
+            if len(points) >= 2:
+                if closed:
+                    points.pop()
+                polylines.append((points, closed))
+        return polylines
+
+    @staticmethod
+    def _catmull_rom_svg_path(
+        points: Sequence[tuple[float, float]],
+        closed: bool,
+    ) -> str:
+        """Convertit une polyligne en courbe de Bézier cubique douce."""
+        clean: list[tuple[float, float]] = []
+        for point in points:
+            if not clean or math.hypot(
+                point[0] - clean[-1][0], point[1] - clean[-1][1]
+            ) > 0.01:
+                clean.append(point)
+        if len(clean) < 2:
+            return ""
+        if len(clean) == 2:
+            return (
+                f"M{clean[0][0]:.1f},{clean[0][1]:.1f} "
+                f"L{clean[1][0]:.1f},{clean[1][1]:.1f}"
+            )
+
+        commands = [f"M{clean[0][0]:.1f},{clean[0][1]:.1f}"]
+        count = len(clean)
+        segment_count = count if closed else count - 1
+        for index in range(segment_count):
+            first = clean[index]
+            second = clean[(index + 1) % count]
+            previous = clean[(index - 1) % count] if closed or index else first
+            following = (
+                clean[(index + 2) % count]
+                if closed or index + 2 < count
+                else second
+            )
+            control_1 = (
+                first[0] + (second[0] - previous[0]) / 6.0,
+                first[1] + (second[1] - previous[1]) / 6.0,
+            )
+            control_2 = (
+                second[0] - (following[0] - first[0]) / 6.0,
+                second[1] - (following[1] - first[1]) / 6.0,
+            )
+            commands.append(
+                f"C{control_1[0]:.1f},{control_1[1]:.1f} "
+                f"{control_2[0]:.1f},{control_2[1]:.1f} "
+                f"{second[0]:.1f},{second[1]:.1f}"
+            )
+        if closed:
+            commands.append("Z")
         return " ".join(commands)
 
     def _isobar_label_points(
@@ -1232,10 +1726,12 @@ class GFSMapRenderer:
         return " ".join(commands), ";".join(points)
 
     @staticmethod
-    def _isobar_levels(pressure: np.ndarray, interval: float = 4.0) -> np.ndarray:
-        finite = np.asarray(pressure, dtype=np.float32)
+    def _field_contour_levels(
+        field: np.ndarray,
+        interval: float,
+    ) -> np.ndarray:
+        finite = np.asarray(field, dtype=np.float32)
         finite = finite[np.isfinite(finite)]
-        finite = finite[(finite >= 870.0) & (finite <= 1085.0)]
         if not finite.size:
             return np.empty(0, dtype=np.float32)
         minimum = float(np.nanpercentile(finite, 0.2))
@@ -1245,6 +1741,17 @@ class GFSMapRenderer:
         if last < first:
             return np.empty(0, dtype=np.float32)
         return np.arange(first, last + interval * 0.5, interval)
+
+    @classmethod
+    def _isobar_levels(
+        cls,
+        pressure: np.ndarray,
+        interval: float = 4.0,
+    ) -> np.ndarray:
+        finite = np.asarray(pressure, dtype=np.float32)
+        finite = finite[np.isfinite(finite)]
+        finite = finite[(finite >= 870.0) & (finite <= 1085.0)]
+        return cls._field_contour_levels(finite, interval)
 
     def _write_wind_overlay(
         self,
@@ -1280,7 +1787,8 @@ class GFSMapRenderer:
             f'<path d="{isobar_path}" fill="none" stroke="#172b39" '
             'stroke-opacity="0.8" stroke-width="1.05" '
             'stroke-linejoin="round" stroke-linecap="round" '
-            'data-gfsm-role="isobars" data-gfsm-interval="4"/>\n'
+            'data-gfsm-role="isobars" data-gfsm-interval="4" '
+            'data-gfsm-quality="smooth-cubic"/>\n'
             f'<path d="" fill="none" stroke="none" '
             'data-gfsm-role="isobar-labels" '
             f'data-gfsm-labels="{isobar_labels}"/>\n'
@@ -1295,6 +1803,40 @@ class GFSMapRenderer:
             f'<path d="" fill="none" stroke="none" '
             'data-gfsm-role="wind-arrows" '
             f'data-gfsm-points="{arrow_points}"/>\n'
+            '</svg>\n'
+        )
+        destination.write_text(svg, encoding="utf-8")
+
+    def _write_contour_overlay(
+        self,
+        field: np.ndarray,
+        destination: Path,
+        *,
+        interval: float,
+        colour: str = "#172b39",
+        opacity: float = 0.82,
+    ) -> None:
+        levels = self._field_contour_levels(field, interval)
+        label_candidates: dict[float, list[tuple[float, float]]] = {}
+        contour_path = self._contour_path(
+            field,
+            levels,
+            label_candidates=label_candidates,
+        )
+        labels = self._isobar_label_points(label_candidates, levels)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        svg = (
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {self.width} '
+            f'{self.height}" preserveAspectRatio="none" '
+            'shape-rendering="geometricPrecision">\n'
+            f'<path d="{contour_path}" fill="none" stroke="{colour}" '
+            f'stroke-opacity="{opacity:.2f}" stroke-width="1.05" '
+            'stroke-linejoin="round" stroke-linecap="round" '
+            'data-gfsm-role="contours" data-gfsm-quality="smooth-cubic"/>\n'
+            '<path d="" fill="none" stroke="none" '
+            'data-gfsm-role="isobar-labels" '
+            f'data-gfsm-labels="{labels}"/>\n'
             '</svg>\n'
         )
         destination.write_text(svg, encoding="utf-8")
@@ -1540,35 +2082,91 @@ class GFSMapRenderer:
         files: dict[str, str] = {}
         probes: dict[str, str] = {}
         vectors: dict[str, str] = {}
-        wind_u = fields.get("wind_u_kmh")
-        wind_v = fields.get("wind_v_kmh")
-        if wind_u is not None and wind_v is not None:
+        pressure = fields.get("pressure_hpa")
+        pressure_array = np.asarray(pressure) if pressure is not None else None
+
+        temperature = fields.get("temperature_c")
+        if temperature is not None and np.any(np.isfinite(temperature)):
             destination = (
-                self.output_directory / "vectors" / "vent" /
+                self.output_directory / "vectors" / "temperature" /
                 f"{lead_hour:03d}.svg"
             )
-            pressure = fields.get("pressure_hpa")
-            self._write_wind_overlay(
-                np.asarray(wind_u),
-                np.asarray(wind_v),
-                destination,
-                np.asarray(pressure) if pressure is not None else None,
+            self._write_contour_overlay(
+                np.asarray(temperature), destination, interval=2.0,
+                colour="#263746", opacity=0.72,
             )
-            vector_path = f"maps/vectors/vent/{destination.name}"
-            for layer_key, field_name in (
-                ("vent", "wind_speed_kmh"),
-                ("rafales", "wind_gust_kmh"),
+            vectors["temperature"] = f"maps/vectors/temperature/{destination.name}"
+
+        wind_definitions = (
+            ("vent", "wind_speed_kmh", "wind_u_kmh", "wind_v_kmh"),
+            ("vent_100", "wind_speed_100_kmh", "wind_u_100_kmh", "wind_v_100_kmh"),
+            ("vent_950", "wind_speed_950_kmh", "wind_u_950_kmh", "wind_v_950_kmh"),
+            ("vent_925", "wind_speed_925_kmh", "wind_u_925_kmh", "wind_v_925_kmh"),
+            ("vent_850", "wind_speed_850_kmh", "wind_u_850_kmh", "wind_v_850_kmh"),
+            ("vent_700", "wind_speed_700_kmh", "wind_u_700_kmh", "wind_v_700_kmh"),
+            ("vent_500", "wind_speed_500_kmh", "wind_u_500_kmh", "wind_v_500_kmh"),
+            ("jet_stream", "wind_speed_300_kmh", "wind_u_300_kmh", "wind_v_300_kmh"),
+            ("vent_200", "wind_speed_200_kmh", "wind_u_200_kmh", "wind_v_200_kmh"),
+            ("storm_motion", "storm_motion_kmh", "storm_motion_u_kmh", "storm_motion_v_kmh"),
+        )
+        for layer_key, speed_field, u_field, v_field in wind_definitions:
+            speed = fields.get(speed_field)
+            wind_u = fields.get(u_field)
+            wind_v = fields.get(v_field)
+            if (
+                speed is None or wind_u is None or wind_v is None
+                or not np.any(np.isfinite(speed))
             ):
-                speed = fields.get(field_name)
-                if speed is None or not np.any(np.isfinite(speed)):
-                    continue
-                vectors[layer_key] = (
-                    vector_path
-                )
+                continue
+            destination = (
+                self.output_directory / "vectors" / layer_key /
+                f"{lead_hour:03d}.svg"
+            )
+            self._write_wind_overlay(
+                np.asarray(wind_u), np.asarray(wind_v), destination,
+                pressure_array,
+            )
+            vectors[layer_key] = f"maps/vectors/{layer_key}/{destination.name}"
+
+        if "vent" in vectors:
+            for layer_key, speed_field in (
+                ("rafales", "wind_gust_kmh"),
+                ("rafales_max", "wind_gust_kmh"),
+            ):
+                speed = fields.get(speed_field)
+                if speed is not None and np.any(np.isfinite(speed)):
+                    vectors[layer_key] = vectors["vent"]
+
+        for layer_key, field_name, interval, colour in (
+            ("geopotentiel_500", "pressure_hpa", 4.0, "#172b39"),
+            ("mucape", "best_lifted_index_k", 2.0, "#301f42"),
+        ):
+            contour_field = fields.get(field_name)
+            base_field = next(
+                (spec.field for spec in LAYER_SPECS if spec.key == layer_key),
+                None,
+            )
+            if (
+                contour_field is None or base_field is None
+                or fields.get(base_field) is None
+                or not np.any(np.isfinite(contour_field))
+            ):
+                continue
+            destination = (
+                self.output_directory / "vectors" / layer_key /
+                f"{lead_hour:03d}.svg"
+            )
+            self._write_contour_overlay(
+                np.asarray(contour_field), destination,
+                interval=interval, colour=colour,
+            )
+            vectors[layer_key] = f"maps/vectors/{layer_key}/{destination.name}"
         for spec in LAYER_SPECS:
             if spec.source_key is not None:
                 continue
-            values = fields.get(spec.field)
+            # Un champ direct n'est utilisé que par une couche. Le retirer au
+            # fil du rendu évite de garder plus de 80 grandes grilles en RAM.
+            values = fields.pop(spec.field, None)
             if values is None or not np.any(np.isfinite(values)):
                 continue
             if spec.field in STATIC_FIELDS and spec.key in self._static_assets:
@@ -1581,7 +2179,21 @@ class GFSMapRenderer:
             file_stem = "statique" if spec.field in STATIC_FIELDS else f"{lead_hour:03d}"
             destination = destination_directory / f"{file_stem}.webp"
             image = self._image_from_field(field, spec)
-            image.save(destination, "WEBP", quality=86, method=5)
+            if spec.key not in PRIMARY_LAYER_KEYS:
+                # Une couche secondaire reste au moins aussi détaillée que la
+                # grille GFS 25 km, mais son WebP est deux fois plus petit sur
+                # chaque axe. Les frontières et les vecteurs restent en SVG
+                # pleine définition et donc parfaitement nets au zoom.
+                image = image.resize(
+                    (max(1, self.width // 2), max(1, self.height // 2)),
+                    Image.Resampling.LANCZOS,
+                )
+            image.save(
+                destination,
+                "WEBP",
+                quality=86 if spec.key in PRIMARY_LAYER_KEYS else 82,
+                method=5,
+            )
             files[spec.key] = f"maps/{spec.key}/{destination.name}"
             probe_destination = (
                 self.output_directory
@@ -1629,7 +2241,9 @@ class GFSMapRenderer:
             spec.key: {
                 "label": spec.label,
                 "unit": spec.unit,
-                "group": spec.group,
+                "group": GROUP_ALIASES.get(spec.group, spec.group),
+                "secondary": spec.key not in PRIMARY_LAYER_KEYS,
+                "vector_label": VECTOR_LABELS.get(spec.key),
                 "decimals": spec.decimals,
                 "transparent_below": spec.transparent_below,
                 "discrete": spec.discrete,

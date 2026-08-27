@@ -32,17 +32,17 @@ from eccodes import (
 )
 from scipy.ndimage import map_coordinates
 
-from gfs_maps import DEFAULT_BOUNDS, GFSMapRenderer
+from gfs_maps import DEFAULT_BOUNDS, GFSMapRenderer, LAYER_SPECS
 
 
 LOGGER = logging.getLogger("gfs.france")
-PIPELINE_VERSION = "1.0.3"
+PIPELINE_VERSION = "1.1.0"
 DATASET_PAGE = "https://www.ncei.noaa.gov/products/weather-climate-models/global-forecast"
 DEFAULT_CURRENT_METADATA_URL = (
     "https://raw.githubusercontent.com/alertesmeteo-hub/"
     "gfs/data/index.json"
 )
-USER_AGENT = "alertes-meteo.com/gfs-noaa-france/1.0.3"
+USER_AGENT = "alertes-meteo.com/gfs-noaa-france/1.1.0"
 
 # Grille mondiale régulière GFS 0,25°.
 GFS_NI = 1440
@@ -120,31 +120,15 @@ INTEGER_COLUMNS = {
     "snow_phase_code",
 }
 
-MAP_FIELDS = {
-    "temperature_c",
-    "wind_chill_c",
-    "dewpoint_c",
-    "humidex",
-    "humidity_pct",
-    "precipitation_mm",
-    "precipitation_total_mm",
-    "snow_mm",
-    "snow_water_equivalent_mm",
-    "snow_depth_cm",
-    "graupel_mm",
-    "wind_speed_kmh",
-    "wind_gust_kmh",
-    "wind_u_kmh",
-    "wind_v_kmh",
+MAP_FIELDS = {spec.field for spec in LAYER_SPECS} | {
     "pressure_hpa",
-    "surface_pressure_hpa",
-    "cloud_cover_pct",
-    "cloud_low_pct",
-    "cloud_mid_pct",
-    "cloud_high_pct",
-    "cape_jkg",
-    "reflectivity_dbz",
-    "altitude_m",
+    "wind_u_kmh", "wind_v_kmh",
+    "storm_motion_u_kmh", "storm_motion_v_kmh",
+    *{
+        f"wind_{component}_{level}_kmh"
+        for component in ("u", "v")
+        for level in (100, 200, 300, 500, 700, 850, 925, 950)
+    },
 }
 
 CONDITION_CODES = {
@@ -382,57 +366,164 @@ def mask_missing(values: np.ndarray, missing_value: Any) -> np.ndarray:
     return result
 
 
+def _metadata_integer(gid: int, key: str, default: int = -1) -> int:
+    try:
+        return int(round(float(safe_get(gid, key, default))))
+    except (TypeError, ValueError):
+        return default
+
+
 def message_field(gid: int) -> str | None:
-    short_name = str(safe_get(gid, "shortName", ""))
+    """Associe sans ambiguïté un message GFS à un champ interne.
+
+    Plusieurs paramètres NOAA partagent le même ``shortName``. Le niveau GRIB
+    est donc indispensable : sans ce contrôle, le dernier CAPE, vent, RH ou
+    géopotentiel rencontré écraserait silencieusement les autres.
+    """
+    short_name = str(safe_get(gid, "shortName", "")).lower()
     level_type = str(safe_get(gid, "typeOfLevel", ""))
-    level = int(safe_get(gid, "level", -1))
-    if short_name == "z":
-        return (
-            "surface_geopotential"
-            if level_type == "surface"
-            else None
-        )
-    if short_name in {"2t", "2d"}:
-        return "temperature_k" if short_name == "2t" else "dewpoint_k"
-    if short_name == "t":
-        return "temperature_k" if level_type == "heightAboveGround" and level == 2 else None
-    if short_name in {"10u", "10v"}:
-        return "wind_u_ms" if short_name == "10u" else "wind_v_ms"
-    if short_name in {"u", "v"}:
-        if level_type != "heightAboveGround" or level != 10:
+    level_type_lower = level_type.lower()
+    level = _metadata_integer(gid, "level")
+    pressure_layer_depth = (
+        int(round(level / 100.0)) if level >= 1000 else level
+    )
+    step_type = str(safe_get(gid, "stepType", "")).lower()
+    name = str(safe_get(gid, "name", "")).lower()
+    is_pressure = level_type_lower in {"isobaricinhpa", "isobaricinhpa"}
+    is_height = level_type_lower == "heightaboveground"
+    is_pressure_layer = "pressurefromgroundlayer" in level_type_lower
+
+    if short_name in {"z", "gh", "hgt"}:
+        if level_type_lower == "surface":
+            return (
+                "surface_geopotential"
+                if short_name == "z"
+                else "surface_altitude_m"
+            )
+        if is_pressure and level in {500, 850}:
+            return f"geopotential_{level}_m"
+        if level_type_lower == "cloudceiling":
+            return "cloud_ceiling_m"
+        if "isothermzero" in level_type_lower or "0c isotherm" in name:
+            return "freezing_level_m"
+        if "highesttroposphericfreezing" in level_type_lower:
+            return "highest_freezing_level_m"
+        if level_type_lower == "potentialvorticity" and level >= 0:
+            return "pv_surface_height_m"
+
+    if short_name in {"2t", "tmp", "t"}:
+        if (short_name == "2t") or (is_height and level == 2):
+            return "temperature_k"
+        if level_type_lower == "surface":
+            return "surface_temperature_k"
+        if "depthbelowlandlayer" in level_type_lower and level in {0, 10}:
+            return "soil_temperature_k"
+        if is_pressure and level in {10, 500, 700, 850}:
+            return f"temperature_{level}_k"
+    if short_name in {"tmax", "mx2t", "mx2t3", "mx2t6"}:
+        return "temperature_max_k" if is_height and level == 2 else None
+    if short_name in {"tmin", "mn2t", "mn2t3", "mn2t6"}:
+        return "temperature_min_k" if is_height and level == 2 else None
+    if short_name in {"2d", "dpt", "d2m"}:
+        return "dewpoint_k" if short_name == "2d" or (is_height and level == 2) else None
+
+    if short_name in {"10u", "10v", "u", "v", "ugrd", "vgrd"}:
+        component = "u" if short_name in {"10u", "u", "ugrd"} else "v"
+        if short_name in {"10u", "10v"} or (is_height and level == 10):
+            return f"wind_{component}_ms"
+        if is_height and level == 100:
+            return f"wind_{component}_100_ms"
+        if is_pressure and level in {200, 300, 500, 700, 850, 925, 950}:
+            return f"wind_{component}_{level}_ms"
+    if short_name in {"ustm", "vstm"}:
+        return "storm_motion_u_ms" if short_name == "ustm" else "storm_motion_v_ms"
+
+    if short_name in {"rh", "r", "2r"}:
+        if is_height and level == 2:
+            return "humidity_2m_pct"
+        if is_pressure and level in {700, 850}:
+            return f"humidity_{level}_pct"
+        if "entireatmosphere" in level_type_lower:
+            return "humidity_atmosphere_pct"
+
+    if short_name in {"cape", "mucape"}:
+        if short_name == "mucape" or (
+            is_pressure_layer and pressure_layer_depth == 255
+        ):
+            return "mucape_jkg"
+        if is_pressure_layer and pressure_layer_depth == 180:
+            return "mlcape_jkg"
+        if is_pressure_layer and pressure_layer_depth == 90:
+            return "cape_90_jkg"
+        if level_type_lower == "surface":
+            return "sbcape_jkg"
+    if short_name in {"cin", "mucin"}:
+        if short_name == "mucin" or (
+            is_pressure_layer and pressure_layer_depth == 255
+        ):
+            return "mucin_jkg"
+        if is_pressure_layer and pressure_layer_depth == 180:
+            return "mlcin_jkg"
+        if level_type_lower == "surface":
+            return "sbcin_jkg"
+
+    if short_name in {"sp", "pres"}:
+        if level_type_lower == "tropopause":
+            return "tropopause_pressure_pa"
+        if level_type_lower == "surface":
+            return "surface_pressure_pa"
+    if short_name == "plpl":
+        return "parcel_lift_pressure_pa"
+    if short_name == "trpp" and level_type_lower == "tropopause":
+        return "tropopause_pressure_pa"
+
+    if short_name in {"tcc", "lcc", "mcc", "hcc", "lcdc", "mcdc", "hcdc"}:
+        if step_type == "avg":
             return None
-        return "wind_u_ms" if short_name == "u" else "wind_v_ms"
+        if short_name in {"lcc", "lcdc"}:
+            return "cloud_low_pct"
+        if short_name in {"mcc", "mcdc"}:
+            return "cloud_mid_pct"
+        if short_name in {"hcc", "hcdc"}:
+            return "cloud_high_pct"
+        if "convectivecloudlayer" in level_type_lower:
+            return "cloud_convective_pct"
+        return "cloud_total_fraction" if "atmosphere" in level_type_lower else None
+
     direct = {
-        "dpt": "dewpoint_k",
-        "10fg": "gust_speed_ms",
-        "fg10": "gust_speed_ms",
+        "10fg": "gust_speed_ms", "fg10": "gust_speed_ms",
         "gust": "gust_speed_ms",
-        "mucape": "cape_jkg",
-        "cape": "cape_jkg",
-        "sp": "surface_pressure_pa",
-        "msl": "mean_sea_pressure_pa",
-        "prmsl": "mean_sea_pressure_pa",
-        "pres": "surface_pressure_pa",
-        "tcc": "cloud_total_fraction",
-        "lcc": "cloud_low_pct",
-        "mcc": "cloud_mid_pct",
-        "hcc": "cloud_high_pct",
-        "tp": "precipitation_total_m",
-        "apcp": "precipitation_total_m",
-        "tprate": "precipitation_rate_kgm2s",
-        "prate": "precipitation_rate_kgm2s",
-        "sf": "snow_total_m",
-        "sdwe": "snow_total_m",
-        "sd": "snow_depth_m",
-        "snod": "snow_depth_m",
-        "sde": "snow_depth_m",
-        "orog": "surface_altitude_m",
-        "hgt": "surface_altitude_m",
-        "vis": "visibility_m",
-        "refc": "reflectivity_dbz",
+        "msl": "mean_sea_pressure_pa", "prmsl": "mean_sea_pressure_pa",
+        "tp": "precipitation_total_m", "apcp": "precipitation_total_m",
+        "tprate": "precipitation_rate_kgm2s", "prate": "precipitation_rate_kgm2s",
+        "cprat": "convective_rate_kgm2s", "acpcp": "convective_precipitation_mm",
+        "pwat": "precipitable_water_mm", "watr": "runoff_total_mm",
+        "sf": "snow_total_m", "sdwe": "snow_total_m",
+        "sd": "snow_depth_m", "snod": "snow_depth_m", "sde": "snow_depth_m",
+        "orog": "surface_altitude_m", "vis": "visibility_m",
+        "refc": "reflectivity_dbz", "vrate": "ventilation_rate_m2s",
+        "hlcy": "srh_0_3_m2s2", "hindex": "haines_index",
+        "cwork": "cloud_work_jkg", "lftx": "surface_lifted_index_k",
+        "4lftx": "best_lifted_index_k", "absv": f"absolute_vorticity_{level}_s"
+        if is_pressure and level in {500, 900} else None,
+        "vvel": "vertical_velocity_700_pas" if is_pressure and level == 700 else None,
+        "w": "vertical_velocity_700_pas" if is_pressure and level == 700 else None,
+        "tsoil": "soil_temperature_k" if "depthbelowlandlayer" in level_type_lower and level in {0, 10} else None,
+        "st": "soil_temperature_k" if "depthbelowlandlayer" in level_type_lower and level in {0, 10} else None,
+        "soilw": "soil_moisture_vol_fraction" if "depthbelowlandlayer" in level_type_lower and level in {0, 10} else None,
+        "soill": "soil_moisture_liquid_fraction" if "depthbelowlandlayer" in level_type_lower and level in {0, 10} else None,
+        "shtfl": "sensible_heat_flux_wm2", "avg_ishf": "sensible_heat_flux_wm2",
+        "lhtfl": "latent_heat_flux_wm2", "avg_slhtf": "latent_heat_flux_wm2",
+        "dswrf": "downward_shortwave_wm2", "sdswrf": "downward_shortwave_wm2",
+        "dlwrf": "downward_longwave_wm2", "sdlwrf": "downward_longwave_wm2",
+        "hpbl": "mixed_layer_depth_m",
     }
-    if short_name in direct:
+    if short_name in direct and direct[short_name] is not None:
         return direct[short_name]
+    if short_name == "cpr" and step_type != "avg":
+        return "convective_rate_kgm2s"
+    if short_name == "refd" and is_height and level in {1000, 4000}:
+        return f"reflectivity_{level}_dbz"
     if (
         int(safe_get(gid, "discipline", -1)) == 0
         and int(safe_get(gid, "parameterCategory", -1)) == 16
@@ -646,7 +737,9 @@ def array_like(
     values = raw.get(name)
     if values is None:
         return np.full(shape, np.nan, dtype=np.float64)
-    result = np.asarray(values, dtype=np.float64)
+    # Les cartes 0,25° n'ont pas besoin de float64. Le float32 divise presque
+    # par deux le pic mémoire lorsque plus de 80 paramètres sont traités.
+    result = np.asarray(values, dtype=np.float32)
     if result.shape != shape:
         raise RuntimeError(f"Forme inattendue pour le champ {name} : {result.shape}")
     return result
@@ -673,6 +766,57 @@ def accumulation(
 
 def rounded(values: np.ndarray, decimals: int) -> np.ndarray:
     return np.round(values, decimals)
+
+
+def rolling_extreme(
+    values: np.ndarray,
+    history: list[tuple[int, np.ndarray]] | None,
+    lead_hour: int,
+    *,
+    maximum: bool,
+    window_hours: int = 12,
+) -> tuple[np.ndarray, list[tuple[int, np.ndarray]]]:
+    """Maximum ou minimum glissant, sans empiler les grandes grilles en RAM."""
+    compact = np.asarray(values, dtype=np.float32).copy()
+    kept = [
+        (int(history_lead), np.asarray(history_values, dtype=np.float32))
+        for history_lead, history_values in (history or [])
+        if lead_hour - int(history_lead) <= window_hours
+    ]
+    kept.append((int(lead_hour), compact))
+    result = kept[0][1].copy()
+    combine = np.fmax if maximum else np.fmin
+    for _history_lead, history_values in kept[1:]:
+        result = combine(result, history_values)
+    return result, kept
+
+
+def theta_e_850(temperature_c: np.ndarray, humidity_pct: np.ndarray) -> np.ndarray:
+    """Température potentielle équivalente à 850 hPa (formule de Bolton)."""
+    temperature_k = temperature_c + 273.15
+    relative = np.clip(humidity_pct / 100.0, 0.01, 1.0)
+    saturation = 6.112 * np.exp(17.67 * temperature_c / (temperature_c + 243.5))
+    vapour = relative * saturation
+    mixing_ratio = 0.622 * vapour / np.maximum(850.0 - vapour, 1.0)
+    dewpoint_c = 243.5 * np.log(np.maximum(vapour, 0.01) / 6.112) / (
+        17.67 - np.log(np.maximum(vapour, 0.01) / 6.112)
+    )
+    dewpoint_k = dewpoint_c + 273.15
+    tlcl = 1.0 / (
+        1.0 / np.maximum(dewpoint_k - 56.0, 1.0)
+        + np.log(np.maximum(temperature_k / dewpoint_k, 0.1)) / 800.0
+    ) + 56.0
+    theta = temperature_k * np.power(
+        1000.0 / 850.0,
+        0.2854 * (1.0 - 0.28 * mixing_ratio),
+    )
+    result = theta * np.exp(
+        (3376.0 / np.maximum(tlcl, 150.0) - 2.54)
+        * mixing_ratio
+        * (1.0 + 0.81 * mixing_ratio)
+    )
+    valid = np.isfinite(temperature_c) & np.isfinite(humidity_pct)
+    return np.where(valid, np.clip(result, 180.0, 450.0), np.nan)
 
 
 def storm_diagnostics(
@@ -782,20 +926,43 @@ def storm_diagnostics(
 def transform_step(
     raw: dict[str, np.ndarray],
     altitude: np.ndarray,
-    previous: dict[str, np.ndarray],
+    previous: dict[str, Any],
     lead_hour: int,
-) -> tuple[dict[str, np.ndarray], dict[str, np.ndarray]]:
+) -> tuple[dict[str, np.ndarray], dict[str, Any]]:
     shape = altitude.shape
     temperature = array_like(raw, "temperature_k", shape) - 273.15
+    surface_temperature = array_like(raw, "surface_temperature_k", shape) - 273.15
+    soil_temperature = array_like(raw, "soil_temperature_k", shape) - 273.15
+    temperature_850 = array_like(raw, "temperature_850_k", shape) - 273.15
+    temperature_700 = array_like(raw, "temperature_700_k", shape) - 273.15
+    temperature_500 = array_like(raw, "temperature_500_k", shape) - 273.15
+    temperature_10 = array_like(raw, "temperature_10_k", shape) - 273.15
     direct_dewpoint = array_like(raw, "dewpoint_k", shape) - 273.15
     temp_gamma = 17.625 * temperature / (243.04 + temperature)
     dew_gamma = 17.625 * direct_dewpoint / (243.04 + direct_dewpoint)
-    humidity = np.clip(100.0 * np.exp(dew_gamma - temp_gamma), 0, 100)
+    humidity_derived = np.clip(100.0 * np.exp(dew_gamma - temp_gamma), 0, 100)
+    humidity_direct = np.clip(array_like(raw, "humidity_2m_pct", shape), 0, 100)
+    humidity = np.where(np.isfinite(humidity_direct), humidity_direct, humidity_derived)
+    humidity_850 = np.clip(array_like(raw, "humidity_850_pct", shape), 0, 100)
+    humidity_700 = np.clip(array_like(raw, "humidity_700_pct", shape), 0, 100)
     u_wind = array_like(raw, "wind_u_ms", shape)
     v_wind = array_like(raw, "wind_v_ms", shape)
+    wind_components = {
+        level: (
+            array_like(raw, f"wind_u_{level}_ms", shape),
+            array_like(raw, f"wind_v_{level}_ms", shape),
+        )
+        for level in (100, 200, 300, 500, 700, 850, 925, 950)
+    }
     gust_scalar = array_like(raw, "gust_speed_ms", shape)
     surface_pressure = array_like(raw, "surface_pressure_pa", shape) / 100.0
-    cape = np.maximum(array_like(raw, "cape_jkg", shape), 0.0)
+    sbcape = np.maximum(array_like(raw, "sbcape_jkg", shape), 0.0)
+    mlcape = np.maximum(array_like(raw, "mlcape_jkg", shape), 0.0)
+    mucape = np.maximum(array_like(raw, "mucape_jkg", shape), 0.0)
+    cape = np.where(np.isfinite(mucape), mucape, sbcape)
+    sbcin = array_like(raw, "sbcin_jkg", shape)
+    mlcin = array_like(raw, "mlcin_jkg", shape)
+    mucin = array_like(raw, "mucin_jkg", shape)
     precipitation_rate = np.maximum(
         array_like(raw, "precipitation_rate_kgm2s", shape) * 3600.0,
         0.0,
@@ -805,6 +972,7 @@ def transform_step(
     cloud_low = np.clip(array_like(raw, "cloud_low_pct", shape), 0, 100)
     cloud_mid = np.clip(array_like(raw, "cloud_mid_pct", shape), 0, 100)
     cloud_high = np.clip(array_like(raw, "cloud_high_pct", shape), 0, 100)
+    cloud_convective = np.clip(array_like(raw, "cloud_convective_pct", shape), 0, 100)
 
     precipitation, rain_total = accumulation(
         raw,
@@ -819,10 +987,37 @@ def transform_step(
     graupel, graupel_total = accumulation(
         raw, "graupel_total_mm", shape, previous.get("graupel_total"), lead_hour
     )
+    _runoff_increment, runoff_total = accumulation(
+        raw, "runoff_total_mm", shape, previous.get("runoff_total"), lead_hour
+    )
 
     wind_speed = np.hypot(u_wind, v_wind) * 3.6
     wind_direction = np.degrees(np.arctan2(-u_wind, -v_wind)) % 360.0
     gust_speed = gust_scalar * 3.6
+    wind_speeds = {
+        level: np.hypot(components[0], components[1]) * 3.6
+        for level, components in wind_components.items()
+    }
+    storm_motion_u = array_like(raw, "storm_motion_u_ms", shape)
+    storm_motion_v = array_like(raw, "storm_motion_v_ms", shape)
+    storm_motion_speed = np.hypot(storm_motion_u, storm_motion_v) * 3.6
+
+    maximum_source = array_like(raw, "temperature_max_k", shape) - 273.15
+    minimum_source = array_like(raw, "temperature_min_k", shape) - 273.15
+    maximum_source = np.where(np.isfinite(maximum_source), maximum_source, temperature)
+    minimum_source = np.where(np.isfinite(minimum_source), minimum_source, temperature)
+    temperature_max_12h, maximum_history = rolling_extreme(
+        maximum_source,
+        previous.get("temperature_max_history"),
+        lead_hour,
+        maximum=True,
+    )
+    temperature_min_12h, minimum_history = rolling_extreme(
+        minimum_source,
+        previous.get("temperature_min_history"),
+        lead_hour,
+        maximum=False,
+    )
 
     relative = np.clip(humidity / 100.0, 0.01, 1.0)
     gamma = np.log(relative) + 17.625 * temperature / (243.04 + temperature)
@@ -886,7 +1081,7 @@ def transform_step(
     condition[np.isfinite(snow) & (snow >= 0.1)] = 7
 
     step_hours = 3.0 if lead_hour <= 144 else 6.0
-    thunder, lightning, hail, convective_precipitation, storm_type = (
+    thunder, lightning, hail, diagnosed_convective_precipitation, storm_type = (
         storm_diagnostics(
             cape,
             precipitation,
@@ -898,6 +1093,23 @@ def transform_step(
             step_hours,
         )
     )
+    direct_convective_precipitation = array_like(
+        raw, "convective_precipitation_mm", shape
+    )
+    convective_precipitation = np.where(
+        np.isfinite(direct_convective_precipitation),
+        np.maximum(direct_convective_precipitation, 0.0),
+        diagnosed_convective_precipitation,
+    )
+
+    cloud_composition = (
+        (np.nan_to_num(cloud_low, nan=0.0) >= 35.0).astype(np.int16)
+        + 2 * (np.nan_to_num(cloud_mid, nan=0.0) >= 35.0).astype(np.int16)
+        + 4 * (np.nan_to_num(cloud_high, nan=0.0) >= 35.0).astype(np.int16)
+    )
+    cloud_composition[
+        ~np.isfinite(cloud_low) & ~np.isfinite(cloud_mid) & ~np.isfinite(cloud_high)
+    ] = 0
 
     snow_ratio = np.select(
         [temperature <= -10, temperature <= -5, temperature <= 0, temperature <= 1.5],
@@ -907,12 +1119,20 @@ def transform_step(
     snow_fresh = np.maximum(snow, 0.0) * snow_ratio / 10.0
     previous_fresh = previous.get("fresh_snow")
     if previous_fresh is None:
-        snow_depth = snow_fresh.copy()
+        estimated_snow_depth = snow_fresh.copy()
     else:
-        snow_depth = np.nan_to_num(previous_fresh, nan=0.0) + np.nan_to_num(
+        estimated_snow_depth = np.nan_to_num(previous_fresh, nan=0.0) + np.nan_to_num(
             snow_fresh, nan=0.0
         )
-        snow_depth[~np.isfinite(snow_fresh) & ~np.isfinite(previous_fresh)] = np.nan
+        estimated_snow_depth[
+            ~np.isfinite(snow_fresh) & ~np.isfinite(previous_fresh)
+        ] = np.nan
+    direct_snow_depth_cm = array_like(raw, "snow_depth_m", shape) / 10.0
+    snow_depth = np.where(
+        np.isfinite(direct_snow_depth_cm),
+        np.maximum(direct_snow_depth_cm, 0.0),
+        estimated_snow_depth,
+    )
 
     snow_phase = np.zeros(shape, dtype=np.int16)
     snow_phase[np.isfinite(precipitation) & (precipitation >= 0.1)] = 1
@@ -930,35 +1150,91 @@ def transform_step(
 
     result = {
         "temperature_c": rounded(temperature, 1),
+        "temperature_max_12h_c": rounded(temperature_max_12h, 1),
+        "temperature_min_12h_c": rounded(temperature_min_12h, 1),
         "wind_chill_c": rounded(wind_chill, 1),
         "dewpoint_c": rounded(dewpoint, 1),
         "humidex": rounded(humidex, 1),
+        "surface_temperature_c": rounded(surface_temperature, 1),
+        "soil_temperature_c": rounded(soil_temperature, 1),
+        "temperature_850_c": rounded(temperature_850, 1),
+        "temperature_700_c": rounded(temperature_700, 1),
+        "temperature_500_c": rounded(temperature_500, 1),
+        "temperature_10_c": rounded(temperature_10, 1),
+        "theta_e_850_k": rounded(theta_e_850(temperature_850, humidity_850), 1),
         "humidity_pct": rounded(humidity, 0),
+        "humidity_850_pct": rounded(humidity_850, 0),
+        "humidity_700_pct": rounded(humidity_700, 0),
         "precipitation_mm": rounded(precipitation, 1),
         "precipitation_total_mm": rounded(rain_total, 1),
+        "convective_rate_mmh": rounded(
+            np.maximum(array_like(raw, "convective_rate_kgm2s", shape), 0.0) * 3600.0,
+            2,
+        ),
+        "convective_precipitation_mm": rounded(convective_precipitation, 1),
+        "precipitable_water_mm": rounded(array_like(raw, "precipitable_water_mm", shape), 1),
+        "runoff_total_mm": rounded(runoff_total, 1),
         "cloud_cover_pct": rounded(cloud, 0),
         "cloud_low_pct": rounded(cloud_low, 0),
         "cloud_mid_pct": rounded(cloud_mid, 0),
         "cloud_high_pct": rounded(cloud_high, 0),
+        "cloud_convective_pct": rounded(cloud_convective, 0),
+        "cloud_composition_code": cloud_composition,
+        "cloud_ceiling_m": rounded(array_like(raw, "cloud_ceiling_m", shape), 0),
         "precipitation_rate_mmh": rounded(precipitation_rate, 2),
         "wind_speed_kmh": rounded(wind_speed, 0),
         "wind_direction_deg": rounded(wind_direction, 0),
         "wind_gust_kmh": rounded(gust_speed, 0),
         "wind_u_kmh": rounded(u_wind * 3.6, 1),
         "wind_v_kmh": rounded(v_wind * 3.6, 1),
+        "storm_motion_kmh": rounded(storm_motion_speed, 0),
+        "storm_motion_u_kmh": rounded(storm_motion_u * 3.6, 1),
+        "storm_motion_v_kmh": rounded(storm_motion_v * 3.6, 1),
+        "ventilation_rate_m2s": rounded(array_like(raw, "ventilation_rate_m2s", shape), 0),
         "pressure_hpa": rounded(pressure, 0),
         "pressure_surface_hpa": rounded(surface_pressure, 0),
         "surface_pressure_hpa": rounded(surface_pressure, 0),
         "visibility_km": rounded(array_like(raw, "visibility_m", shape) / 1000.0, 1),
         "condition_code": condition,
         "cape_jkg": rounded(cape, 0),
+        "sbcape_jkg": rounded(sbcape, 0),
+        "mlcape_jkg": rounded(mlcape, 0),
+        "mucape_jkg": rounded(mucape, 0),
+        "sbcin_jkg": rounded(sbcin, 0),
+        "mlcin_jkg": rounded(mlcin, 0),
+        "mucin_jkg": rounded(mucin, 0),
+        "surface_lifted_index_k": rounded(array_like(raw, "surface_lifted_index_k", shape), 1),
+        "best_lifted_index_k": rounded(array_like(raw, "best_lifted_index_k", shape), 1),
+        "srh_0_3_m2s2": rounded(array_like(raw, "srh_0_3_m2s2", shape), 0),
+        "haines_index": rounded(array_like(raw, "haines_index", shape), 0),
+        "cloud_work_jkg": rounded(array_like(raw, "cloud_work_jkg", shape), 0),
+        "parcel_lift_pressure_hpa": rounded(
+            array_like(raw, "parcel_lift_pressure_pa", shape) / 100.0, 0
+        ),
         "reflectivity_dbz": rounded(reflectivity, 0),
+        "reflectivity_1000_dbz": rounded(array_like(raw, "reflectivity_1000_dbz", shape), 0),
+        "reflectivity_4000_dbz": rounded(array_like(raw, "reflectivity_4000_dbz", shape), 0),
+        "geopotential_500_m": rounded(array_like(raw, "geopotential_500_m", shape), 0),
+        "geopotential_850_m": rounded(array_like(raw, "geopotential_850_m", shape), 0),
+        "freezing_level_m": rounded(array_like(raw, "freezing_level_m", shape), 0),
+        "highest_freezing_level_m": rounded(array_like(raw, "highest_freezing_level_m", shape), 0),
+        "tropopause_pressure_hpa": rounded(
+            array_like(raw, "tropopause_pressure_pa", shape) / 100.0, 0
+        ),
+        "vertical_velocity_700_pas": rounded(array_like(raw, "vertical_velocity_700_pas", shape), 2),
+        "absolute_vorticity_500_1e5s": rounded(
+            array_like(raw, "absolute_vorticity_500_s", shape) * 100000.0, 1
+        ),
+        "absolute_vorticity_900_1e5s": rounded(
+            array_like(raw, "absolute_vorticity_900_s", shape) * 100000.0, 1
+        ),
+        "pv_surface_height_m": rounded(array_like(raw, "pv_surface_height_m", shape), 0),
+        "weather_code": condition,
         "graupel_mm": rounded(graupel, 2),
         "thunder_risk_code": thunder,
         "lcl_m": rounded(lcl, 0),
         "lightning_score": rounded(lightning, 0),
         "hail_risk_code": hail,
-        "convective_precipitation_mm": rounded(convective_precipitation, 1),
         "storm_type_code": storm_type,
         "snow_risk_code": snow_risk,
         "snowfall_mm": rounded(snow, 2),
@@ -970,12 +1246,29 @@ def transform_step(
         "snow_phase_code": snow_phase,
         "snowfall_total_mm": rounded(snow_total, 1),
         "altitude_m": rounded(altitude, 0),
+        "soil_moisture_liquid_pct": rounded(
+            array_like(raw, "soil_moisture_liquid_fraction", shape) * 100.0, 1
+        ),
+        "soil_moisture_vol_pct": rounded(
+            array_like(raw, "soil_moisture_vol_fraction", shape) * 100.0, 1
+        ),
+        "sensible_heat_flux_wm2": rounded(array_like(raw, "sensible_heat_flux_wm2", shape), 0),
+        "latent_heat_flux_wm2": rounded(array_like(raw, "latent_heat_flux_wm2", shape), 0),
+        "downward_shortwave_wm2": rounded(array_like(raw, "downward_shortwave_wm2", shape), 0),
+        "downward_longwave_wm2": rounded(array_like(raw, "downward_longwave_wm2", shape), 0),
     }
+    for level, components in wind_components.items():
+        result[f"wind_speed_{level}_kmh"] = rounded(wind_speeds[level], 0)
+        result[f"wind_u_{level}_kmh"] = rounded(components[0] * 3.6, 1)
+        result[f"wind_v_{level}_kmh"] = rounded(components[1] * 3.6, 1)
     state = {
         "rain_total": rain_total,
         "snow_total": snow_total,
         "graupel_total": graupel_total,
-        "fresh_snow": snow_depth,
+        "runoff_total": runoff_total,
+        "fresh_snow": estimated_snow_depth,
+        "temperature_max_history": maximum_history,
+        "temperature_min_history": minimum_history,
     }
     return result, state
 
@@ -1140,16 +1433,37 @@ def retrieve_gfs_step(run_time: datetime, lead: int, destination: Path) -> None:
         "rightlon": "18",
         "toplat": "57",
         "bottomlat": "38",
-        "var_TMP": "on", "var_DPT": "on", "var_UGRD": "on", "var_VGRD": "on",
-        "var_GUST": "on", "var_PRMSL": "on", "var_PRES": "on", "var_TCDC": "on",
-        "var_APCP": "on", "var_PRATE": "on", "var_WEASD": "on", "var_SNOD": "on",
-        "var_CAPE": "on", "var_HGT": "on", "var_VIS": "on", "var_REFC": "on",
-        "var_LCDC": "on", "var_MCDC": "on", "var_HCDC": "on",
+        "var_TMP": "on", "var_DPT": "on", "var_TMAX": "on", "var_TMIN": "on",
+        "var_RH": "on", "var_UGRD": "on", "var_VGRD": "on", "var_GUST": "on",
+        "var_PRMSL": "on", "var_PRES": "on", "var_HGT": "on",
+        "var_APCP": "on", "var_PRATE": "on", "var_ACPCP": "on",
+        "var_CPRAT": "on", "var_PWAT": "on", "var_WATR": "on",
+        "var_WEASD": "on", "var_SNOD": "on", "var_CAPE": "on", "var_CIN": "on",
+        "var_LFTX": "on", "var_4LFTX": "on", "var_HLCY": "on",
+        "var_HINDEX": "on", "var_CWORK": "on", "var_PLPL": "on",
+        "var_USTM": "on", "var_VSTM": "on", "var_VRATE": "on",
+        "var_TCDC": "on", "var_LCDC": "on", "var_MCDC": "on", "var_HCDC": "on",
+        "var_VIS": "on", "var_REFC": "on", "var_REFD": "on",
+        "var_ABSV": "on", "var_VVEL": "on", "var_HPBL": "on",
+        "var_TSOIL": "on", "var_SOILW": "on", "var_SOILL": "on",
+        "var_SHTFL": "on", "var_LHTFL": "on", "var_DSWRF": "on", "var_DLWRF": "on",
         "lev_2_m_above_ground": "on", "lev_10_m_above_ground": "on",
-        "lev_mean_sea_level": "on", "lev_surface": "on",
+        "lev_100_m_above_ground": "on", "lev_10_mb": "on", "lev_200_mb": "on",
+        "lev_300_mb": "on", "lev_500_mb": "on", "lev_700_mb": "on",
+        "lev_850_mb": "on", "lev_900_mb": "on", "lev_925_mb": "on",
+        "lev_950_mb": "on", "lev_mean_sea_level": "on", "lev_surface": "on",
         "lev_entire_atmosphere": "on",
+        "lev_entire_atmosphere_\\(considered_as_a_single_layer\\)": "on",
         "lev_low_cloud_layer": "on", "lev_middle_cloud_layer": "on",
-        "lev_high_cloud_layer": "on",
+        "lev_high_cloud_layer": "on", "lev_convective_cloud_layer": "on",
+        "lev_cloud_ceiling": "on", "lev_planetary_boundary_layer": "on",
+        "lev_1000_m_above_ground": "on", "lev_4000_m_above_ground": "on",
+        "lev_0-0.1_m_below_ground": "on", "lev_3000-0_m_above_ground": "on",
+        "lev_6000-0_m_above_ground": "on", "lev_90-0_mb_above_ground": "on",
+        "lev_180-0_mb_above_ground": "on", "lev_255-0_mb_above_ground": "on",
+        "lev_0C_isotherm": "on", "lev_highest_tropospheric_freezing_level": "on",
+        "lev_tropopause": "on",
+        "lev_PV=2e-06_\\(Km^2/kg/s\\)_surface": "on",
     }
     response = requests.get(
         url, params=parameters, stream=True, timeout=(20, 180),
@@ -1204,8 +1518,8 @@ def build_product(
 
     point_altitude: np.ndarray | None = None
     map_altitude: np.ndarray | None = None
-    point_state: dict[str, np.ndarray] = {}
-    map_state: dict[str, np.ndarray] = {}
+    point_state: dict[str, Any] = {}
+    map_state: dict[str, Any] = {}
     model_run = run_hint
     source_bytes = 0
 
@@ -1243,17 +1557,22 @@ def build_product(
                                 json_number(point_altitude[int(global_id)], integer=True)
                             )
                 assert point_altitude is not None and map_altitude is not None
+                point_raw = step.pop("values")
+                map_raw = step.pop("map_values")
                 transformed, point_state = transform_step(
-                    step["values"], point_altitude, point_state, lead
+                    point_raw, point_altitude, point_state, lead
                 )
+                point_raw.clear()
                 map_transformed, map_state = transform_step(
-                    step["map_values"], map_altitude, map_state, lead
+                    map_raw, map_altitude, map_state, lead
                 )
+                map_raw.clear()
                 map_fields = {
                     key: values
                     for key, values in map_transformed.items()
                     if key in MAP_FIELDS
                 }
+                del map_transformed
                 map_renderer.render_step(
                     lead_hour=lead,
                     valid_time=step["valid_time"],

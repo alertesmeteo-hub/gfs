@@ -67,7 +67,7 @@
         var baseUrl = (app.dataset.baseUrl || '').replace(/\/+$/, '');
         var requestedLayer = app.dataset.variable || 'temperature';
         var timezone = app.dataset.timezone || 'Europe/Paris';
-        var moduleVersion = app.dataset.moduleVersion || '1.0.2';
+        var moduleVersion = app.dataset.moduleVersion || '1.1.0';
         var animationEnabled = app.dataset.animation !== '0';
         var reducedMotion = window.matchMedia &&
             window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -78,6 +78,7 @@
         var menuCloseIcon = app.querySelector('[data-gfsm-menu-icon]');
         var layerMenu = app.querySelector('[data-gfsm-layer-menu]');
         var layerGrid = app.querySelector('[data-gfsm-layer-grid]');
+        var secondaryToggle = app.querySelector('[data-gfsm-secondary-toggle]');
         var currentLayerText = app.querySelector('[data-gfsm-current-layer]');
         var previousButton = app.querySelector('[data-gfsm-previous]');
         var playButton = app.querySelector('[data-gfsm-play]');
@@ -168,6 +169,7 @@
         var periodEnd = 0;
         var periodTimer = null;
         var periodProbeCache = new Map();
+        var showSecondary = secondaryToggle ? secondaryToggle.checked : false;
 
         var validityFormat;
         var runFormat;
@@ -1356,14 +1358,20 @@
                 'Températures',
                 'Précipitations',
                 'Vent',
-                'Nuages et humidité',
-                'Pression, instabilité et relief',
+                'Nuages & Humidité',
+                'Instabilité',
+                'Pression & Géopotentiel',
+                'Dynamique',
+                'Temps sensible',
                 'Autres'
             ];
             var grouped = {};
             layerGrid.replaceChildren();
             Object.keys(manifest.layers || {}).forEach(function (key) {
                 var layer = manifest.layers[key];
+                if (layer.secondary && !showSecondary) {
+                    return;
+                }
                 var group = layer.group || 'Autres';
                 if (!grouped[group]) {
                     grouped[group] = [];
@@ -1532,7 +1540,7 @@
             var vectorKey = sourceKey || currentLayer;
             if (step && step.vectors &&
                     (step.vectors[currentLayer] || step.vectors[vectorKey])) {
-                title += ' • isobares 4 hPa';
+                title += ' • ' + ((layer && layer.vector_label) || 'surcouche météo');
             }
             return title;
         }
@@ -2493,6 +2501,18 @@
                 menuToggle.focus();
             }
         });
+        if (secondaryToggle) {
+            secondaryToggle.addEventListener('change', function () {
+                showSecondary = secondaryToggle.checked;
+                if (!showSecondary && manifest.layers[currentLayer] &&
+                        manifest.layers[currentLayer].secondary) {
+                    setLayer(manifest.layers.temperature ? 'temperature' :
+                        Object.keys(manifest.layers)[0]);
+                }
+                buildLayerMenu();
+                refreshLayerMenu();
+            });
+        }
         app.addEventListener('keydown', function (event) {
             if (event.key === 'Escape' && !layerMenu.hidden) {
                 setMenuOpen(false);
@@ -2742,6 +2762,13 @@
                     throw new Error('manifeste cartographique invalide');
                 }
                 manifest = payload;
+                if (payload.layers[currentLayer] &&
+                        payload.layers[currentLayer].secondary) {
+                    showSecondary = true;
+                    if (secondaryToggle) {
+                        secondaryToggle.checked = true;
+                    }
+                }
                 buildLayerMenu();
                 buildLegend();
                 configureTimeline();
@@ -2751,7 +2778,7 @@
                 if (payload.run_time) {
                     run.textContent = 'Run du ' +
                         runFormat.format(new Date(payload.run_time)).replace(':', 'h') +
-                        ' • résolution 0,25° (~28 km)';
+                        ' • résolution 0,25° (~25 km)';
                     mapRun.textContent = 'Run GFS ' +
                         runLabelUtc(payload.run_time);
                 }

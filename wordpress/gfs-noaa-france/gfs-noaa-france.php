@@ -3,7 +3,7 @@
  * Plugin Name: GFS / NOAA France — Tableaux et cartes
  * Plugin URI: https://github.com/alertesmeteo-hub/gfs
  * Description: Cartes interactives et prévisions du modèle déterministe NOAA GFS pour la France métropolitaine et la Corse.
- * Version: 1.0.2
+ * Version: 1.1.0
  * Author: Alertes Météo Hub
  * Requires at least: 5.8
  * Requires PHP: 7.4
@@ -14,8 +14,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('GFS_VERSION', '1.0.2');
-define('GFS_RELEASE_DATE', '26/08/2026');
+define('GFS_VERSION', '1.1.0');
+define('GFS_RELEASE_DATE', '27/08/2026');
 define('GFS_OPTION_BASE_URL', 'gfs_national_data_base_url');
 define(
     'GFS_DEFAULT_BASE_URL',
@@ -313,6 +313,10 @@ function gfs_render_map_shortcode($atts) {
                     <strong>Choisir une carte GFS</strong>
                     <small>Paramètres disponibles dans la production publique NOAA GFS</small>
                 </div>
+                <label class="gfsm-secondary-toggle">
+                    <input type="checkbox" data-gfsm-secondary-toggle>
+                    <span>Afficher les paramètres secondaires</span>
+                </label>
             </div>
             <div class="gfsm-layer-grid" data-gfsm-layer-grid></div>
         </div>

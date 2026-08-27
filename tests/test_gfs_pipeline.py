@@ -11,6 +11,7 @@ from unittest.mock import patch
 from datetime import datetime, timezone
 
 import numpy as np
+from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,7 +31,12 @@ from update_gfs_france import (  # noqa: E402
     storm_diagnostics,
     transform_step,
 )
-from gfs_maps import GFSMapRenderer  # noqa: E402
+from gfs_maps import (  # noqa: E402
+    GFSMapRenderer,
+    LAYER_SPECS,
+    PRIMARY_LAYER_KEYS,
+    REQUESTED_GFS_LAYER_KEYS,
+)
 
 
 class GFSGridTests(unittest.TestCase):
@@ -186,10 +192,62 @@ class GFSGridTests(unittest.TestCase):
             return metadata.get(gid, {}).get(key, default)
 
         with patch("update_gfs_france.safe_get", side_effect=fake_get):
-            self.assertIsNone(message_field(1))
+            self.assertEqual(message_field(1), "surface_temperature_k")
             self.assertEqual(message_field(2), "temperature_k")
             self.assertEqual(message_field(3), "snow_total_m")
             self.assertEqual(message_field(4), "snow_depth_m")
+
+    def test_extended_gfs_levels_are_not_mixed_together(self) -> None:
+        metadata = {
+            1: {"shortName": "t", "typeOfLevel": "isobaricInhPa", "level": 850},
+            2: {"shortName": "u", "typeOfLevel": "isobaricInhPa", "level": 925},
+            3: {"shortName": "cape", "typeOfLevel": "pressureFromGroundLayer", "level": 180},
+            4: {"shortName": "refd", "typeOfLevel": "heightAboveGround", "level": 1000},
+            5: {"shortName": "hgt", "typeOfLevel": "isothermZero", "level": 0},
+            6: {"shortName": "hgt", "typeOfLevel": "potentialVorticity", "level": 2},
+            7: {"shortName": "hgt", "typeOfLevel": "potentialVorticity", "level": -2},
+        }
+
+        def fake_get(gid: int, key: str, default=None):
+            return metadata.get(gid, {}).get(key, default)
+
+        with patch("update_gfs_france.safe_get", side_effect=fake_get):
+            self.assertEqual(message_field(1), "temperature_850_k")
+            self.assertEqual(message_field(2), "wind_u_925_ms")
+            self.assertEqual(message_field(3), "mlcape_jkg")
+            self.assertEqual(message_field(4), "reflectivity_1000_dbz")
+            self.assertEqual(message_field(5), "freezing_level_m")
+            self.assertEqual(message_field(6), "pv_surface_height_m")
+            self.assertIsNone(message_field(7))
+
+    def test_requested_parameter_families_are_declared_and_secondary_tagged(self) -> None:
+        labels = {spec.label for spec in LAYER_SPECS}
+        required = {
+            "Température maximale à 2 m sur 12 h",
+            "Température à 10 hPa",
+            "Theta-E à 850 hPa",
+            "Taux de précipitations convectives",
+            "Ruissellement de surface cumulé",
+            "Vent à 950 hPa",
+            "Storm Motion",
+            "Nébulosité (composition)",
+            "MLCAPE",
+            "MUCIN",
+            "SRH 0-3 km",
+            "Pression tropopause",
+            "Tourbillon absolu à 900 hPa",
+            "Réflectivité à 4 km",
+            "Humidité liquide du sol (0-10 cm)",
+            "Rayonnement thermique descendant",
+        }
+        self.assertTrue(required.issubset(labels), required - labels)
+        declared_keys = {spec.key for spec in LAYER_SPECS}
+        self.assertTrue(
+            REQUESTED_GFS_LAYER_KEYS.issubset(declared_keys),
+            REQUESTED_GFS_LAYER_KEYS - declared_keys,
+        )
+        self.assertIn("temperature", PRIMARY_LAYER_KEYS)
+        self.assertNotIn("temperature_10", PRIMARY_LAYER_KEYS)
 
     def test_noaa_units_are_not_multiplied_twice(self) -> None:
         point = np.array([12.5])
@@ -281,10 +339,18 @@ class GFSGridTests(unittest.TestCase):
 
         self.assertIn('data-gfsm-role="isobars"', overlay)
         self.assertIn('data-gfsm-interval="4"', overlay)
+        self.assertIn('data-gfsm-quality="smooth-cubic"', overlay)
         self.assertIn('data-gfsm-role="isobar-labels"', overlay)
         self.assertIn('data-gfsm-labels="', overlay)
         self.assertIn('data-gfsm-role="wind-arrows"', overlay)
         self.assertIn('data-gfsm-points="', overlay)
+        isobar_path = re.search(
+            r'<path d="([^"]*)"[^>]+data-gfsm-role="isobars"',
+            overlay,
+        )
+        self.assertIsNotNone(isobar_path)
+        self.assertIn("C", isobar_path.group(1))
+        self.assertLessEqual(isobar_path.group(1).count("M"), 5)
         arrow_points = overlay.split('data-gfsm-points="', 1)[1].split('"', 1)[0]
         parsed_points = [
             tuple(float(value) for value in point.split(","))
@@ -297,6 +363,22 @@ class GFSGridTests(unittest.TestCase):
                 renderer._isobar_clearance(pressure, int(x), int(y), 4.0),
                 0.62,
             )
+
+    def test_isobar_segments_are_joined_into_one_smooth_closed_curve(self) -> None:
+        segments = [
+            ((10.0, 10.0), (30.0, 10.0)),
+            ((30.0, 10.0), (30.0, 30.0)),
+            ((30.0, 30.0), (10.0, 30.0)),
+            ((10.0, 30.0), (10.0, 10.0)),
+        ]
+        stitched = GFSMapRenderer._stitch_contour_segments(segments)
+        self.assertEqual(len(stitched), 1)
+        points, closed = stitched[0]
+        self.assertTrue(closed)
+        path = GFSMapRenderer._catmull_rom_svg_path(points, closed)
+        self.assertEqual(path.count("M"), 1)
+        self.assertIn("C", path)
+        self.assertTrue(path.endswith("Z"))
 
     def test_period_layers_reuse_numeric_maps_without_duplication(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -341,6 +423,27 @@ class GFSGridTests(unittest.TestCase):
         self.assertEqual(
             manifest["layers"]["rafales_max"]["source_key"], "rafales"
         )
+
+    def test_secondary_rasters_are_compact_but_primary_rasters_stay_full_size(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output_directory = Path(directory) / "maps"
+            renderer = GFSMapRenderer(
+                np.empty(0), np.empty(0), output_directory,
+                width=64, height=48, pregridded=True,
+            )
+            shape = (48, 64)
+            renderer.render_step(
+                lead_hour=3,
+                valid_time=datetime(2026, 8, 27, 9, tzinfo=timezone.utc),
+                fields={
+                    "temperature_c": np.full(shape, 24.0),
+                    "temperature_10_c": np.full(shape, -45.0),
+                },
+            )
+            with Image.open(output_directory / "temperature" / "003.webp") as primary:
+                self.assertEqual(primary.size, (64, 48))
+            with Image.open(output_directory / "temperature_10" / "003.webp") as secondary:
+                self.assertEqual(secondary.size, (32, 24))
 
 
 if __name__ == "__main__":

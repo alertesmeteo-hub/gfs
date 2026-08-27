@@ -31,6 +31,7 @@ class Element {
         this.textContent = '';
         this.value = '0';
         this.max = '0';
+        this.checked = false;
         this.children = [];
         this.listeners = {};
         this.attributes = {};
@@ -146,7 +147,7 @@ class Canvas extends Element {
 const elements = {};
 const selectors = [
     'menu-toggle', 'menu-close', 'menu-label', 'menu-icon', 'layer-menu',
-    'layer-grid', 'current-layer',
+    'layer-grid', 'secondary-toggle', 'current-layer',
     'previous', 'play', 'next', 'validity', 'lead', 'run', 'generated', 'stale',
     'viewport', 'map-title', 'map-run', 'map-date', 'loading', 'error', 'slider',
     'legend', 'zoom-in', 'zoom-out', 'reset', 'fullscreen', 'zoom-level',
@@ -174,7 +175,7 @@ elements.labels = new Canvas('labels');
 const app = new Element('section');
 app.dataset = {
     baseUrl: 'https://example.test/data', variable: 'temperature',
-    timezone: 'Europe/Paris', moduleVersion: '1.0.2', animation: '1'
+    timezone: 'Europe/Paris', moduleVersion: '1.1.0', animation: '1'
 };
 const captureTool = new Element('button');
 captureTool.dataset.gfsmTool = 'capture';
@@ -226,6 +227,12 @@ const manifest = {
             discrete: false, opacity: 244, source_key: 'rafales',
             range_mode: 'maximum',
             stops: [{ value: 0, color: '#edf7e8' }, { value: 160, color: '#25152e' }]
+        },
+        temperature_10: {
+            label: 'Température à 10 hPa', unit: '°C', group: 'Températures',
+            decimals: 1, transparent_below: null, discrete: false,
+            opacity: 244, secondary: true, source_key: null, range_mode: null,
+            stops: [{ value: -80, color: '#303fa5' }, { value: -20, color: '#ff0000' }]
         }
     },
     steps: [{
@@ -463,7 +470,20 @@ vm.runInNewContext(fs.readFileSync(scriptPath, 'utf8'), context, { filename: scr
     assert.equal(elements['zoom-level'].textContent, '6400 %');
     assert.equal(elements['zoom-in'].disabled, true);
 
-    const layerButtons = elements['layer-grid'].querySelectorAll('[data-gfsm-layer-key]');
+    let layerButtons = elements['layer-grid'].querySelectorAll('[data-gfsm-layer-key]');
+    assert.equal(
+        layerButtons.some(button => button.dataset.gfsmLayerKey === 'temperature_10'),
+        false,
+        'Un paramètre secondaire est affiché par défaut'
+    );
+    elements['secondary-toggle'].checked = true;
+    elements['secondary-toggle'].dispatch('change');
+    layerButtons = elements['layer-grid'].querySelectorAll('[data-gfsm-layer-key]');
+    assert.equal(
+        layerButtons.some(button => button.dataset.gfsmLayerKey === 'temperature_10'),
+        true,
+        'Le bouton n’affiche pas les paramètres secondaires'
+    );
     const rainPeriod = layerButtons.find(button =>
         button.dataset.gfsmLayerKey === 'pluie_cumul');
     assert.ok(rainPeriod, 'La couche de cumul sur une période manque');
