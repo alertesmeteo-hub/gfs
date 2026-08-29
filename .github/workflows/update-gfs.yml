@@ -5,7 +5,7 @@ on:
   schedule:
     # Quatre productions quotidiennes, après disponibilité des runs
     # NOAA GFS 00, 06, 12 et 18 UTC.
-    - cron: "30 4,10,16,22 * * *"
+    - cron: "30 0,6,12,18 * * *"
 
 permissions:
   contents: write
