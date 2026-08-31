@@ -3,9 +3,9 @@ name: Mise à jour GFS France
 on:
   workflow_dispatch:
   schedule:
-    # Quatre productions quotidiennes, après disponibilité des runs
-    # NOAA GFS 00, 06, 12 et 18 UTC.
-    - cron: "30 0,6,12,18 * * *"
+    # Vérification toutes les 10 minutes ; GitHub peut retarder le démarrage.
+    # Le script ne reconstruit pas un cycle déjà publié.
+    - cron: "7,17,27,37,47,57 * * * *"
 
 permissions:
   contents: write
