@@ -36,13 +36,13 @@ from gfs_maps import DEFAULT_BOUNDS, GFSMapRenderer, LAYER_SPECS
 
 
 LOGGER = logging.getLogger("gfs.france")
-PIPELINE_VERSION = "1.1.0"
+PIPELINE_VERSION = "1.2.0"
 DATASET_PAGE = "https://www.ncei.noaa.gov/products/weather-climate-models/global-forecast"
 DEFAULT_CURRENT_METADATA_URL = (
     "https://raw.githubusercontent.com/alertesmeteo-hub/"
     "gfs/data/index.json"
 )
-USER_AGENT = "alertes-meteo.com/gfs-noaa-france/1.1.0"
+USER_AGENT = "alertes-meteo.com/gfs-noaa-france/1.2.0"
 
 # Grille mondiale régulière GFS 0,25°.
 GFS_NI = 1440
@@ -178,8 +178,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--forecast-hours",
         type=int,
-        default=240,
-        help="Dernière échéance GFS, entre 3 et 240 heures",
+        default=360,
+        help="Dernière échéance GFS, entre 3 et 360 heures",
     )
     parser.add_argument(
         "--current-metadata-url",
@@ -673,7 +673,7 @@ def normalize_gfs_units(
 def parse_grib_files(
     paths: Iterable[Path],
     grid: NationalGrid,
-    map_sampler: MapSampler,
+    map_sampler: MapSampler | None,
     lead_hour: int,
 ) -> dict[str, Any]:
     point_values: dict[str, np.ndarray] = {}
@@ -700,7 +700,7 @@ def parse_grib_files(
                     if end_step is not None:
                         observed_lead = int(end_step)
                     point_field = grid.extract(gid)
-                    map_field = map_sampler.extract(gid, grid)
+                    map_field = map_sampler.extract(gid, grid) if map_sampler else np.empty(0)
                     point_field, map_field = normalize_gfs_units(
                         field,
                         point_field,
@@ -708,7 +708,8 @@ def parse_grib_files(
                         str(safe_get(gid, "units", "")),
                     )
                     point_values[field] = point_field
-                    map_values[field] = map_field
+                    if map_sampler is not None:
+                        map_values[field] = map_field
                 finally:
                     codes_release(gid)
 
@@ -1405,7 +1406,7 @@ def write_departments(
 
 
 def forecast_steps(forecast_hours: int) -> list[int]:
-    """Échéances GFS à trois heures, de H+0 à H+240."""
+    """Échéances GFS à trois heures, de H+0 à H+360."""
     return list(range(0, forecast_hours + 1, 3))
 
 
@@ -1569,7 +1570,7 @@ def build_product(
                     len(steps),
                     lead,
                 )
-                step = parse_grib_files(current_paths, grid, map_sampler, lead)
+                step = parse_grib_files(current_paths, grid, map_sampler if lead <= 240 else None, lead)
                 model_run = model_run or step["run_time"]
                 if lead == 0:
                     point_altitude = step["values"].get("surface_geopotential")
@@ -1593,21 +1594,23 @@ def build_product(
                     point_raw, point_altitude, point_state, lead
                 )
                 point_raw.clear()
-                map_transformed, map_state = transform_step(
-                    map_raw, map_altitude, map_state, lead
-                )
-                map_raw.clear()
-                map_fields = {
-                    key: values
-                    for key, values in map_transformed.items()
-                    if key in MAP_FIELDS
-                }
-                del map_transformed
-                map_renderer.render_step(
-                    lead_hour=lead,
-                    valid_time=step["valid_time"],
-                    fields=map_fields,
-                )
+                # Au-delà de J+10 : uniquement les tableaux, aucune carte supplémentaire.
+                if lead <= 240:
+                    map_transformed, map_state = transform_step(
+                        map_raw, map_altitude, map_state, lead
+                    )
+                    map_raw.clear()
+                    map_fields = {
+                        key: values
+                        for key, values in map_transformed.items()
+                        if key in MAP_FIELDS
+                    }
+                    del map_transformed
+                    map_renderer.render_step(
+                        lead_hour=lead,
+                        valid_time=step["valid_time"],
+                        fields=map_fields,
+                    )
                 iso_time = iso_utc(step["valid_time"])
                 for code, department in catalog.departments.items():
                     line = [
@@ -1742,8 +1745,10 @@ def main() -> int:
         level=getattr(logging, os.getenv("LOG_LEVEL", "INFO").upper(), logging.INFO),
         format="%(asctime)s | %(levelname)s | %(message)s",
     )
-    if not 3 <= args.forecast_hours <= 240:
-        raise ValueError("forecast-hours doit être compris entre 3 et 240")
+    if not 3 <= args.forecast_hours <= 360:
+        raise ValueError("forecast-hours doit être compris entre 3 et 360")
+    if args.forecast_hours % 3:
+        raise ValueError("forecast-hours doit être un multiple de 3")
     catalog = load_catalog(Path(args.catalog))
     run_hint = select_ready_run(args.current_metadata_url, args.forecast_hours, args.force)
     if run_hint is None:
