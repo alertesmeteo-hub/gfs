@@ -346,7 +346,7 @@ def already_published(url: str, run_time: datetime | None) -> bool:
         model = payload.get("model") or {}
         return (
             payload.get("status") == "ok"
-            and model.get("run_time") == iso_utc(run_time)
+            and str(model.get("run_time") or "") >= iso_utc(run_time)
             and model.get("pipeline_version") == PIPELINE_VERSION
         )
     except (requests.RequestException, ValueError, TypeError):
@@ -1410,15 +1410,45 @@ def forecast_steps(forecast_hours: int) -> list[int]:
 
 
 def latest_gfs_run_hint(now: datetime | None = None) -> datetime:
-    """Choisit le dernier cycle 00/06/12/18 disponible depuis au moins 4 h."""
+    """Dernier cycle nominal ; sa disponibilité est vérifiée séparément."""
     reference = now or datetime.now(timezone.utc)
     if reference.tzinfo is None:
         reference = reference.replace(tzinfo=timezone.utc)
-    available = reference.astimezone(timezone.utc) - timedelta(hours=4)
+    available = reference.astimezone(timezone.utc)
     cycle_hour = (available.hour // 6) * 6
     return available.replace(
         hour=cycle_hour, minute=0, second=0, microsecond=0
     )
+
+
+def gfs_run_available(run_time: datetime, forecast_hours: int) -> bool:
+    """Vérifie les index légers du début et de la fin du run demandé."""
+    base = (f"https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/"
+            f"gfs.{run_time:%Y%m%d}/{run_time.hour:02d}/atmos")
+    for lead in (0, forecast_hours):
+        url = f"{base}/gfs.t{run_time.hour:02d}z.pgrb2.0p25.f{lead:03d}.idx"
+        response = requests.get(url, timeout=(10, 30), headers={"User-Agent": USER_AGENT})
+        if response.status_code in (403, 404):
+            return False
+        response.raise_for_status()
+        if ":TMP:2 m above ground:" not in response.text:
+            raise RuntimeError(f"Index NOAA inattendu : {url}")
+    return True
+
+
+def select_ready_run(metadata_url: str, forecast_hours: int, force: bool = False,
+                     now: datetime | None = None) -> datetime | None:
+    candidate = latest_gfs_run_hint(now)
+    # Le cycle précédent peut être prêt alors que le cycle nominal démarre.
+    for offset in range(3):
+        run = candidate - timedelta(hours=6 * offset)
+        if not force and already_published(metadata_url, run):
+            LOGGER.info("Run %s déjà publié ; aucune reconstruction", iso_utc(run))
+            return None
+        if gfs_run_available(run, forecast_hours):
+            return run
+        LOGGER.info("Run %s incomplet ; nouvelle vérification au prochain passage", iso_utc(run))
+    return None
 
 
 def retrieve_gfs_step(run_time: datetime, lead: int, destination: Path) -> None:
@@ -1715,13 +1745,11 @@ def main() -> int:
     if not 3 <= args.forecast_hours <= 240:
         raise ValueError("forecast-hours doit être compris entre 3 et 240")
     catalog = load_catalog(Path(args.catalog))
-    run_hint = latest_gfs_run_hint()
-    LOGGER.info("Run GFS sélectionné : %s", iso_utc(run_hint))
-    if not args.force and already_published(
-        args.current_metadata_url, run_hint
-    ):
-        LOGGER.info("Ce run GFS est déjà publié ; aucune reconstruction nécessaire")
+    run_hint = select_ready_run(args.current_metadata_url, args.forecast_hours, args.force)
+    if run_hint is None:
+        LOGGER.info("Aucun nouveau run complet à publier")
         return 0
+    LOGGER.info("Run GFS sélectionné : %s", iso_utc(run_hint))
 
     with tempfile.TemporaryDirectory(
         prefix="gfs-france-build-", ignore_cleanup_errors=True
