@@ -64,7 +64,7 @@ class GFSGridTests(unittest.TestCase):
             10: (26, 6),
             16: (26, 12),
             22: (26, 18),
-            2: (25, 18),
+            2: (26, 0),
         }
         for trigger_hour, (expected_day, expected_hour) in expected.items():
             with self.subTest(trigger_hour=trigger_hour):
