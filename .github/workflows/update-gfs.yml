@@ -60,7 +60,7 @@ jobs:
           maps = json.loads((root / "maps/index.json").read_text(encoding="utf-8"))
           assert index["status"] == "ok"
           assert index["model"]["provider"] == "NOAA / NCEP"
-          assert index["model"]["pipeline_version"] == "1.2.1"
+          assert index["model"]["pipeline_version"] == "1.3.0"
           assert index["coverage"]["communes"] == 34746
           assert index["coverage"]["departments"] == 96
           assert len(maps["layers"]) >= 75
