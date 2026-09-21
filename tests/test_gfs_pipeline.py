@@ -23,9 +23,12 @@ from update_gfs_france import (  # noqa: E402
     MAP_WIDTH,
     MapSampler,
     NationalGrid,
+    blend_cell_values,
+    cell_corners,
     forecast_steps,
     grid_index,
     latest_gfs_run_hint,
+    load_catalog,
     message_field,
     normalize_gfs_units,
     storm_diagnostics,
@@ -49,6 +52,51 @@ class GFSGridTests(unittest.TestCase):
         _index, _latitude, longitude = grid_index(48.4, -4.5)
         self.assertAlmostEqual(longitude, 355.5, places=2)
         self.assertLess(_index % GFS_NI, GFS_NI)
+
+    def test_cell_corners_average_the_four_surrounding_nodes_equally(self) -> None:
+        # Perpignan (42.699°N, 2.9045°E) : grid_index() la place au nœud le
+        # plus proche, 42.75°N/3.00°E (9,6 km, bande littorale/étang de
+        # Canet). cell_corners() doit répartir le poids sur les 4 nœuds
+        # réels de la maille 0,25° qui la contient, à parts égales, pour
+        # qu'un seul nœud (mer, étang, relief isolé) ne pèse jamais plus de
+        # 25 % de la valeur publiée.
+        corners = cell_corners(42.699, 2.9045)
+        self.assertEqual(len(corners), 4)
+        self.assertAlmostEqual(sum(corners.values()), 1.0)
+        self.assertTrue(all(abs(weight - 0.25) < 1e-9 for weight in corners.values()))
+
+        def index_of(lat: float, lon: float) -> int:
+            row = round((90.0 - lat) / 0.25)
+            column = round(lon / 0.25) % GFS_NI
+            return row * GFS_NI + column
+
+        expected = {
+            index_of(42.75, 2.75), index_of(42.75, 3.00),
+            index_of(42.50, 2.75), index_of(42.50, 3.00),
+        }
+        self.assertEqual(set(corners), expected)
+
+    def test_blend_cell_values_caps_a_single_contaminated_node_at_25_percent(self) -> None:
+        catalog = SimpleNamespace(
+            cell_positions=np.array([[0], [1], [2], [3]]),
+            cell_weights=np.array([[0.25], [0.25], [0.25], [0.25]]),
+        )
+        # Un seul nœud (ex. mer/étang) très différent des trois autres ne
+        # doit plus, à lui seul, déterminer la valeur publiée.
+        raw_values = np.array([27.0, 27.0, 27.0, 20.0])
+        blended = blend_cell_values(raw_values, catalog)
+        self.assertAlmostEqual(float(blended[0]), 25.25)
+
+    def test_perpignan_commune_uses_a_four_node_cell_not_the_lone_coastal_node(self) -> None:
+        catalog = load_catalog(ROOT / "config" / "communes-france.json")
+        department = catalog.departments["66"]
+        perpignan = next(
+            commune for commune in department.communes if commune[0] == "66136"
+        )
+        global_cell_id = int(department.global_point_ids[perpignan[6]])
+        weights = catalog.cell_weights[:, global_cell_id]
+        self.assertEqual(int(np.count_nonzero(weights)), 4)
+        self.assertTrue(np.allclose(weights[weights > 0], 0.25))
 
     def test_deterministic_schedule_to_240_hours(self) -> None:
         steps = forecast_steps(240)

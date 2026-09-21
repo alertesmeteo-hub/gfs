@@ -36,13 +36,13 @@ from gfs_maps import DEFAULT_BOUNDS, GFSMapRenderer, LAYER_SPECS
 
 
 LOGGER = logging.getLogger("gfs.france")
-PIPELINE_VERSION = "1.2.1"
+PIPELINE_VERSION = "1.3.0"
 DATASET_PAGE = "https://www.ncei.noaa.gov/products/weather-climate-models/global-forecast"
 DEFAULT_CURRENT_METADATA_URL = (
     "https://raw.githubusercontent.com/alertesmeteo-hub/"
     "gfs/data/index.json"
 )
-USER_AGENT = "alertes-meteo.com/gfs-noaa-france/1.2.1"
+USER_AGENT = "alertes-meteo.com/gfs-noaa-france/1.3.0"
 
 # Grille mondiale régulière GFS 0,25°.
 GFS_NI = 1440
@@ -161,6 +161,12 @@ class NationalCatalog:
     point_departments: list[str]
     departments: dict[str, DepartmentData]
     commune_count: int
+    # Combinaison des nœuds bruts (jusqu'à 4) qui composent chaque maille
+    # publiée : cell_positions[k] est la position, dans le tableau brut
+    # extrait par NationalGrid, du k-ième nœud de la maille ; cell_weights[k]
+    # le poids associé (0 si la maille utilise moins de 4 nœuds distincts).
+    cell_positions: np.ndarray
+    cell_weights: np.ndarray
 
 
 def parse_args() -> argparse.Namespace:
@@ -231,6 +237,30 @@ def grid_index(latitude: float, longitude: float) -> tuple[int, float, float]:
     return index, model_latitude, model_longitude
 
 
+def cell_corners(latitude: float, longitude: float) -> dict[int, float]:
+    """Les 4 nœuds réels de la maille 0,25° encadrant le point, à poids égal.
+
+    ``grid_index`` ramène une commune au seul nœud le plus proche, ce qui peut
+    placer une commune littorale (ex. Perpignan, à 9,6 km de son nœud) sur un
+    point dominé par la mer ou un étang côtier plutôt que par les terres.
+    Moyenner les 4 nœuds de la maille contenant la commune limite le poids
+    d'un nœud isolé à 25 % au lieu de 100 %, sans changer la résolution
+    native GFS (aucune donnée n'est inventée entre les nœuds).
+    """
+    raw_row = (GFS_LAT_FIRST - latitude) / GFS_STEP
+    raw_column = ((longitude - GFS_LON_FIRST) % 360.0) / GFS_STEP
+    row0 = int(math.floor(raw_row))
+    column0 = int(math.floor(raw_column))
+    weights: dict[int, float] = {}
+    for delta_row in (0, 1):
+        for delta_column in (0, 1):
+            row = max(0, min(GFS_NJ - 1, row0 + delta_row))
+            column = (column0 + delta_column) % GFS_NI
+            index = row * GFS_NI + column
+            weights[index] = weights.get(index, 0.0) + 0.25
+    return weights
+
+
 def rain_nearby_points(latitude: float, longitude: float) -> dict[int, tuple[float, float]]:
     """Nœuds réels de la grille 0,25° à 10 km maximum, même hors département."""
     _index, center_lat, center_lon = grid_index(latitude, longitude)
@@ -254,59 +284,94 @@ def load_catalog(path: Path) -> NationalCatalog:
     if len(raw_communes) < 34_000:
         raise RuntimeError("Le catalogue communal France est incomplet")
 
-    mapped: list[tuple[list[Any], int, float, float]] = []
-    point_coordinates: dict[int, tuple[float, float]] = {}
-    rain_department_points: dict[str, set[int]] = defaultdict(set)
+    # Registre des nœuds GFS bruts réellement lus dans le GRIB (un nœud peut
+    # servir de coin à plusieurs mailles, ou de point de recherche pluie).
+    raw_coordinates: dict[int, tuple[float, float]] = {}
+    raw_department_votes: dict[int, Counter[str]] = defaultdict(Counter)
+
+    # Registre des mailles publiées (dédoublonné) : une maille "commune" est
+    # la combinaison de ses 4 nœuds encadrants (cf. cell_corners) ; une
+    # maille "pluie" est un nœud brut isolé (poids 1.0), pour ne pas changer
+    # la recherche pluie/neige à 10 km qui doit rester ponctuelle.
+    cell_registry: dict[tuple[tuple[int, float], ...], int] = {}
+    cell_recipes: list[tuple[tuple[int, float], ...]] = []
+
+    def register_cell(weights: dict[int, float]) -> int:
+        for index in weights:
+            row, column = divmod(index, GFS_NI)
+            lat = GFS_LAT_FIRST - row * GFS_STEP
+            lon = GFS_LON_FIRST + column * GFS_STEP
+            raw_coordinates[index] = (lat, lon)
+        key = tuple(sorted(weights.items()))
+        position = cell_registry.get(key)
+        if position is None:
+            position = len(cell_recipes)
+            cell_registry[key] = position
+            cell_recipes.append(key)
+        return position
+
+    mapped: list[tuple[list[Any], int]] = []
+    rain_department_cells: dict[str, set[int]] = defaultdict(set)
     for commune in raw_communes:
         if not isinstance(commune, list) or len(commune) < 7:
             raise RuntimeError("Entrée communale invalide dans le catalogue")
         latitude = float(commune[5])
         longitude = float(commune[6])
-        model_index, model_latitude, model_longitude = grid_index(
-            latitude, longitude
-        )
-        mapped.append((commune, model_index, model_latitude, model_longitude))
-        point_coordinates[model_index] = (model_latitude, model_longitude)
-        neighbors = rain_nearby_points(latitude, longitude)
-        point_coordinates.update(neighbors)
-        rain_department_points[str(commune[2]).upper()].update(neighbors)
+        department = str(commune[2]).upper()
 
-    model_indexes = sorted(point_coordinates)
-    global_identifier = {
-        model_index: position for position, model_index in enumerate(model_indexes)
-    }
+        cell_id = register_cell(cell_corners(latitude, longitude))
+        for raw_index in dict(cell_recipes[cell_id]):
+            raw_department_votes[raw_index][department] += 1
+        mapped.append((commune, cell_id))
+
+        for raw_index, (lat, lon) in rain_nearby_points(latitude, longitude).items():
+            raw_coordinates[raw_index] = (lat, lon)
+            raw_department_votes[raw_index][department] += 1
+            rain_cell_id = register_cell({raw_index: 1.0})
+            rain_department_cells[department].add(rain_cell_id)
+
+    raw_index_list = sorted(raw_coordinates)
+    raw_position_of = {index: position for position, index in enumerate(raw_index_list)}
     point_latitudes = np.asarray(
-        [point_coordinates[index][0] for index in model_indexes], dtype=np.float64
+        [raw_coordinates[index][0] for index in raw_index_list], dtype=np.float64
     )
     point_longitudes = np.asarray(
-        [point_coordinates[index][1] for index in model_indexes], dtype=np.float64
+        [raw_coordinates[index][1] for index in raw_index_list], dtype=np.float64
     )
-
-    department_votes: dict[int, Counter[str]] = defaultdict(Counter)
-    by_department: dict[str, list[tuple[list[Any], int]]] = defaultdict(list)
-    for commune, model_index, _latitude, _longitude in mapped:
-        department = str(commune[2]).upper()
-        global_id = global_identifier[model_index]
-        department_votes[global_id][department] += 1
-        by_department[department].append((commune, global_id))
-
-    for department, indexes in rain_department_points.items():
-        for index in indexes:
-            department_votes[global_identifier[index]][department] += 1
-
     point_departments = [
-        department_votes[position].most_common(1)[0][0]
-        if department_votes[position]
+        raw_department_votes[index].most_common(1)[0][0]
+        if raw_department_votes[index]
         else ""
-        for position in range(len(model_indexes))
+        for index in raw_index_list
     ]
+
+    cell_count = len(cell_recipes)
+    max_corners = max((len(recipe) for recipe in cell_recipes), default=0)
+    cell_positions = np.zeros((max(max_corners, 1), cell_count), dtype=np.int64)
+    cell_weights = np.zeros((max(max_corners, 1), cell_count), dtype=np.float64)
+    cell_latitudes = np.zeros(cell_count, dtype=np.float64)
+    cell_longitudes = np.zeros(cell_count, dtype=np.float64)
+    for cell_id, recipe in enumerate(cell_recipes):
+        centroid_lat = 0.0
+        centroid_lon = 0.0
+        for slot, (raw_index, weight) in enumerate(recipe):
+            cell_positions[slot, cell_id] = raw_position_of[raw_index]
+            cell_weights[slot, cell_id] = weight
+            centroid_lat += weight * raw_coordinates[raw_index][0]
+            centroid_lon += weight * raw_coordinates[raw_index][1]
+        cell_latitudes[cell_id] = centroid_lat
+        cell_longitudes[cell_id] = centroid_lon
+
+    by_department: dict[str, list[tuple[list[Any], int]]] = defaultdict(list)
+    for commune, cell_id in mapped:
+        department = str(commune[2]).upper()
+        by_department[department].append((commune, cell_id))
 
     departments: dict[str, DepartmentData] = {}
     for department, entries in sorted(by_department.items()):
-        global_ids = sorted({global_id for _commune, global_id in entries} |
-                            {global_identifier[index] for index in rain_department_points[department]})
+        cell_ids = sorted({cell_id for _commune, cell_id in entries} | rain_department_cells[department])
         local_identifier = {
-            global_id: position for position, global_id in enumerate(global_ids)
+            cell_id: position for position, cell_id in enumerate(cell_ids)
         }
         compact_communes = [
             [
@@ -316,21 +381,21 @@ def load_catalog(path: Path) -> NationalCatalog:
                 int(commune[4]),
                 float(commune[5]),
                 float(commune[6]),
-                local_identifier[global_id],
+                local_identifier[cell_id],
             ]
-            for commune, global_id in entries
+            for commune, cell_id in entries
         ]
         compact_points = [
             [
-                model_indexes[global_id],
-                round(float(point_latitudes[global_id]), 5),
-                round(float(point_longitudes[global_id]), 5),
+                cell_recipes[cell_id][0][0],
+                round(float(cell_latitudes[cell_id]), 5),
+                round(float(cell_longitudes[cell_id]), 5),
             ]
-            for global_id in global_ids
+            for cell_id in cell_ids
         ]
         departments[department] = DepartmentData(
             code=department,
-            global_point_ids=np.asarray(global_ids, dtype=np.int64),
+            global_point_ids=np.asarray(cell_ids, dtype=np.int64),
             points=compact_points,
             communes=compact_communes,
         )
@@ -340,19 +405,22 @@ def load_catalog(path: Path) -> NationalCatalog:
             f"Nombre inattendu de départements métropolitains : {len(departments)}"
         )
     LOGGER.info(
-        "Catalogue GFS : %s communes, %s points GFS 0,25°, %s départements",
+        "Catalogue GFS : %s communes, %s mailles (%s nœuds bruts), %s départements",
         len(raw_communes),
-        len(model_indexes),
+        cell_count,
+        len(raw_index_list),
         len(departments),
     )
     return NationalCatalog(
-        version=f"{payload.get('catalog_version', '1')}-gfs001",
-        model_indexes=model_indexes,
+        version=f"{payload.get('catalog_version', '1')}-gfs002",
+        model_indexes=raw_index_list,
         point_latitudes=point_latitudes,
         point_longitudes=point_longitudes,
         point_departments=point_departments,
         departments=departments,
         commune_count=len(raw_communes),
+        cell_positions=cell_positions,
+        cell_weights=cell_weights,
     )
 
 
@@ -693,6 +761,19 @@ def normalize_gfs_units(
     elif field == "surface_geopotential":
         return point_field / 9.80665, map_field / 9.80665
     return point_field, map_field
+
+
+def blend_cell_values(raw_values: np.ndarray, catalog: NationalCatalog) -> np.ndarray:
+    """Moyenne pondérée des nœuds bruts de chaque maille publiée.
+
+    ``raw_values`` est indexé comme ``catalog.model_indexes`` (un nœud GFS
+    par position). Le résultat est indexé par maille (``cell_positions``),
+    l'espace utilisé par ``DepartmentData.global_point_ids``.
+    """
+    blended = np.zeros(catalog.cell_weights.shape[1], dtype=np.float64)
+    for slot in range(catalog.cell_positions.shape[0]):
+        blended += catalog.cell_weights[slot] * raw_values[catalog.cell_positions[slot]]
+    return blended
 
 
 def parse_grib_files(
@@ -1597,6 +1678,10 @@ def build_product(
                     lead,
                 )
                 step = parse_grib_files(current_paths, grid, map_sampler if lead <= 240 else None, lead)
+                step["values"] = {
+                    field: blend_cell_values(values, catalog)
+                    for field, values in step["values"].items()
+                }
                 model_run = model_run or step["run_time"]
                 if lead == 0:
                     point_altitude = step["values"].get("surface_geopotential")
@@ -1605,7 +1690,7 @@ def build_product(
                         point_altitude = step["values"].get("surface_altitude_m")
                         map_altitude = step["map_values"].get("surface_altitude_m")
                     if point_altitude is None:
-                        point_altitude = np.zeros(len(catalog.model_indexes))
+                        point_altitude = np.zeros(catalog.cell_weights.shape[1])
                     if map_altitude is None:
                         map_altitude = np.zeros((MAP_HEIGHT, MAP_WIDTH))
                     for department in catalog.departments.values():
