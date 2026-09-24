@@ -11,6 +11,8 @@ from resume import resumer
 REDIGES = {}
 for _f in sorted(__import__('glob').glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resumes', '*.json'))):
     REDIGES.update(json.load(open(_f, encoding='utf-8')))
+# Mode validation : affiche le texte original de Météo-France dans un bloc repliable (à désactiver après relecture)
+VALIDATION = os.environ.get('VALIDATION', '1') == '1'
 TS = '20221109122403'
 BASE = 'http://pluiesextremes.meteo.fr/france-metropole/'
 WB = f'https://web.archive.org/web/{TS}id_/'
@@ -147,7 +149,7 @@ table{width:100%;border-collapse:collapse;background:var(--card)}th,td{padding:8
 .maj{font-weight:700}.badge{background:#c62828;color:#fff;border-radius:4px;padding:1px 6px;font-size:.75em;margin-left:6px}
 input[type=search]{width:100%;padding:10px;margin:8px 0 16px;border:1px solid var(--bd);border-radius:6px;background:var(--card);color:var(--fg)}
 .fiche h3{font-size:1em;margin:1em 0 .3em}.fiche ul{margin:.2em 0 .8em}.fiche{margin-bottom:16px;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:16px}.chiffre{font-size:1.15em;font-weight:700;color:var(--acc)}
-a.btn{display:inline-block;background:var(--acc);color:#fff;padding:8px 14px;border-radius:6px;text-decoration:none;font-weight:600}a.btn:hover{opacity:.85}
+details.orig{border-left:4px solid #e0a800}details.orig summary{cursor:pointer}a.btn{display:inline-block;background:var(--acc);color:#fff;padding:8px 14px;border-radius:6px;text-decoration:none;font-weight:600}a.btn:hover{opacity:.85}
 footer{color:var(--mut);font-size:.85em}nav a{margin-right:14px}
 .carte{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px}@media(max-width:760px){.carte{grid-template-columns:1fr}}
 svg path{fill:var(--dep);stroke:var(--card);stroke-width:1.5;cursor:pointer}svg path.on{fill:var(--sel)}svg path:hover{opacity:.75}
@@ -191,6 +193,9 @@ for i, e in enumerate(tous, 1):
              + f'<h2>Départements concernés</h2><p>{", ".join(f"{NOMS[x]} ({x})" for x in deps) or "non déterminés"}</p></div>'
              f'<p><a target="_blank" rel="noopener" href="{ARCH}{BASE}{e["slug"]}">Consulter la fiche complète de Météo-France (archive)</a></p>')
     corps = corps.replace('<p><a target="_blank" rel="noopener" href="' + ARCH, '<div class="fiche"><h2>Relevés détaillés</h2>' + detail(c) + '</div><p><a target="_blank" rel="noopener" href="' + ARCH, 1)
+    if VALIDATION:
+        orig = ''.join(f'<p>{html.escape(x)}</p>' for x in t.split('\n') if x.strip())
+        corps = corps.replace('<div class="fiche"><h2>Relevés détaillés', f'<details class="fiche orig"><summary><b>Texte original Météo-France (validation)</b> – cliquer pour afficher</summary>{orig}</details><div class="fiche"><h2>Relevés détaillés', 1)
     lien = f'<p class="source"><a class="btn" target="_blank" rel="noopener" href="{ARCH}{BASE}{e["slug"]}">Consulter la fiche complète de Météo-France (archive) ↗</a></p>'
     corps = lien + corps
     open(os.path.join(d, 'index.html'), 'w', encoding='utf-8').write(doc(f'{e["date"]} – {e["titre"]}', corps, '../../'))
