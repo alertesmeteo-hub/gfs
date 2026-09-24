@@ -8,11 +8,10 @@ def resumer(texte):
     corps = texte.split('\n', 3)[-1] if texte.startswith(('1','2','3','4','5','6','7','8','9','J','F','M','A','S','O','N','D')) else texte
     lignes = [l for l in corps.split('\n') if l.strip() and not re.match(r"\s*(Source|Accueil|Cumul des|Rafales maximales)", l)]
     prose = ' '.join(l.strip() for l in lignes if len(l) > 80 and 'mm à' not in l[:25])
-    vals, vus = [], set()
+    best = {}
     for v, lieu, dep in VAL.findall(corps):
         x = float(v.replace(',', '.')); lieu = lieu.strip()
-        if lieu in vus or x < 20: continue
-        vus.add(lieu); vals.append((x, lieu, dep))
-    vals.sort(reverse=True)
+        if x >= 20 and (lieu not in best or x > best[lieu][0]): best[lieu] = (x, lieu, dep or best.get(lieu, (0, '', ''))[2])
+    vals = sorted(best.values(), reverse=True)
     raf = sorted(((int(v), l.strip(), d) for v, l, d in RAF.findall(corps)), reverse=True)[:1]
     return {'contexte': ' '.join(phrases(prose)[:2])[:600], 'cumuls': vals[:3], 'rafale': raf[0] if raf else None}
