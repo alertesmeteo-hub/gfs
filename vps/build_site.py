@@ -13,6 +13,27 @@ for _f in sorted(__import__('glob').glob(os.path.join(os.path.dirname(os.path.ab
     REDIGES.update(json.load(open(_f, encoding='utf-8')))
 # Mode validation : affiche le texte original de Météo-France dans un bloc repliable (à désactiver après relecture)
 VALIDATION = os.environ.get('VALIDATION', '1') == '1'
+ARTICLES = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'articles')
+def md(txt):
+    """Markdown minimal : titres ##/###, listes, gras, italique, paragraphes."""
+    out, ul = [], False
+    def inl(x):
+        x = html.escape(x)
+        x = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', x)
+        return re.sub(r'\*(.+?)\*', r'<i>\1</i>', x)
+    for l in txt.split('\n'):
+        l = l.rstrip()
+        if l.startswith('- '):
+            if not ul: out.append('<ul>'); ul = True
+            out.append(f'<li>{inl(l[2:])}</li>'); continue
+        if ul: out.append('</ul>'); ul = False
+        if not l.strip(): continue
+        if l.startswith('### '): out.append(f'<h3>{inl(l[4:])}</h3>')
+        elif l.startswith('## '): out.append(f'<h3 class="art-titre">{inl(l[3:])}</h3>')
+        elif l.startswith('# '): continue
+        else: out.append(f'<p>{inl(l)}</p>')
+    if ul: out.append('</ul>')
+    return ''.join(out)
 TS = '20221109122403'
 BASE = 'http://pluiesextremes.meteo.fr/france-metropole/'
 WB = f'https://web.archive.org/web/{TS}id_/'
@@ -148,7 +169,7 @@ header,main,footer{max-width:1100px;margin:auto;padding:16px}header h1{margin:.2
 table{width:100%;border-collapse:collapse;background:var(--card)}th,td{padding:8px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top}
 .maj{font-weight:700}.badge{background:#c62828;color:#fff;border-radius:4px;padding:1px 6px;font-size:.75em;margin-left:6px}
 input[type=search]{width:100%;padding:10px;margin:8px 0 16px;border:1px solid var(--bd);border-radius:6px;background:var(--card);color:var(--fg)}
-.fiche h3{font-size:1em;margin:1em 0 .3em}.fiche ul{margin:.2em 0 .8em}.fiche{margin-bottom:16px;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:16px}.chiffre{font-size:1.15em;font-weight:700;color:var(--acc)}
+.article .art-titre{font-size:1.25em;color:var(--acc)}.article p{margin:.6em 0}.fiche h3{font-size:1em;margin:1em 0 .3em}.fiche ul{margin:.2em 0 .8em}.fiche{margin-bottom:16px;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:16px}.chiffre{font-size:1.15em;font-weight:700;color:var(--acc)}
 details.orig{border-left:4px solid #e0a800}details.orig summary{cursor:pointer}a.btn{display:inline-block;background:var(--acc);color:#fff;padding:8px 14px;border-radius:6px;text-decoration:none;font-weight:600}a.btn:hover{opacity:.85}
 footer{color:var(--mut);font-size:.85em}nav a{margin-right:14px}
 .carte{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px}@media(max-width:760px){.carte{grid-template-columns:1fr}}
@@ -180,10 +201,16 @@ for i, e in enumerate(tous, 1):
     raf = r['rafale']
     rr = REDIGES.get(slug)
     if rr:
-        ch = ''.join(f'<tr><th>{html.escape(k)}</th><td class="chiffre">{html.escape(v)}</td></tr>' for k, v in rr['chiffres'])
+        cum2 = ''.join(f'<tr><td class="chiffre">{v:g} mm</td><td>{html.escape(l)}{f" ({dp})" if dp else ""}</td></tr>' for v, l, dp in r['cumuls'])
+        if not cum2:
+            cum2 = ''.join(f'<tr><th>{html.escape(k)}</th><td class="chiffre">{html.escape(v)}</td></tr>' for k, v in rr['chiffres'])
+        art = os.path.join(ARTICLES, slug + '.md')
+        article = f'<div class="fiche article"><h2>Article</h2>{md(open(art, encoding="utf-8").read())}</div>' if os.path.exists(art) else ''
         corps = (f'<p><b>{html.escape(e["date"])}</b>{" <span class=badge>Événement majeur</span>" if maj else ""}</p><div class="fiche">'
-                 f'<h2>{html.escape(rr["titre"])}</h2><p>{html.escape(rr["texte"])}</p><h2>Chiffres clés</h2><table>{ch}</table>'
+                 f'<h2>Résumé</h2><h3>{html.escape(rr["titre"])}</h3><p>{html.escape(rr["texte"])}</p>'
+                 f'<h2>Cumuls les plus élevés</h2><table>{cum2}</table>'
                  f'<h2>Départements concernés</h2><p>{", ".join(f"{NOMS[x]} ({x})" for x in deps) or "non déterminés"}</p></div>'
+                 + article +
                  f'<p><a target="_blank" rel="noopener" href="{ARCH}{BASE}{e["slug"]}">Consulter la fiche complète de Météo-France (archive)</a></p>')
     else:
       corps = (f'<p><b>{html.escape(e["date"])}</b>{" <span class=badge>Événement majeur</span>" if maj else ""}</p><div class="fiche">'
