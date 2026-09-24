@@ -98,7 +98,7 @@ def doc(titre, corps, pre=''):
     return (f'<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>{html.escape(titre)}</title><link rel="stylesheet" href="{pre}style.css"></head><body><header><nav>'
             f'<a href="{pre}index.html">Événements majeurs</a><a href="{pre}carte.html">Recherche sur carte</a><a href="{pre}tous.html">Tous les événements</a>'
-            f'<a href="https://www.alertes-meteo.com">alertes-meteo.com</a></nav><h1>{html.escape(titre)}</h1></header><main>{corps}</main>{PIED}</body></html>')
+            f'<a target="_blank" rel="noopener" href="https://www.alertes-meteo.com">alertes-meteo.com</a></nav><h1>{html.escape(titre)}</h1></header><main>{corps}</main>{PIED}</body></html>')
 open(os.path.join(ROOT, 'style.css'), 'w').write(CSS)
 
 def annee(date):
@@ -122,15 +122,15 @@ for i, e in enumerate(tous, 1):
         corps = (f'<p><b>{html.escape(e["date"])}</b>{" <span class=badge>Événement majeur</span>" if maj else ""}</p><div class="fiche">'
                  f'<h2>{html.escape(rr["titre"])}</h2><p>{html.escape(rr["texte"])}</p><h2>Chiffres clés</h2><table>{ch}</table>'
                  f'<h2>Départements concernés</h2><p>{", ".join(f"{NOMS[x]} ({x})" for x in deps) or "non déterminés"}</p></div>'
-                 f'<p><a href="{ARCH}{BASE}{e["slug"]}">Consulter la fiche complète de Météo-France (archive)</a></p>')
+                 f'<p><a target="_blank" rel="noopener" href="{ARCH}{BASE}{e["slug"]}">Consulter la fiche complète de Météo-France (archive)</a></p>')
     else:
       corps = (f'<p><b>{html.escape(e["date"])}</b>{" <span class=badge>Événement majeur</span>" if maj else ""}</p><div class="fiche">'
              f'<h2>Résumé</h2><p>{html.escape(r["contexte"]) or "—"}</p>'
              + (f'<h2>Cumuls les plus élevés</h2><table>{cum}</table>' if cum else '')
              + (f'<h2>Rafale maximale</h2><p class="chiffre">{raf[0]} km/h <small>à {html.escape(raf[1])}{f" ({raf[2]})" if raf[2] else ""}</small></p>' if raf else '')
              + f'<h2>Départements concernés</h2><p>{", ".join(f"{NOMS[x]} ({x})" for x in deps) or "non déterminés"}</p></div>'
-             f'<p><a href="{ARCH}{BASE}{e["slug"]}">Consulter la fiche complète de Météo-France (archive)</a></p>')
-    corps = corps.replace('<p><a href="' + ARCH, '<div class="fiche"><h2>Toutes les valeurs relevées (texte intégral de la fiche)</h2>' + detail(c) + '</div><p><a href="' + ARCH, 1)
+             f'<p><a target="_blank" rel="noopener" href="{ARCH}{BASE}{e["slug"]}">Consulter la fiche complète de Météo-France (archive)</a></p>')
+    corps = corps.replace('<p><a target="_blank" rel="noopener" href="' + ARCH, '<div class="fiche"><h2>Toutes les valeurs relevées (texte intégral de la fiche)</h2>' + detail(c) + '</div><p><a target="_blank" rel="noopener" href="' + ARCH, 1)
     open(os.path.join(d, 'index.html'), 'w', encoding='utf-8').write(doc(f'{e["date"]} – {e["titre"]}', corps, '../../'))
     index.append({'n': n, 'date': e['date'], 'titre': e['titre'], 'annee': annee(e['date']), 'url': f'evenements/{n}_{slug}/',
                   'majeur': maj, 'deps': deps, 'max_mm': r['cumuls'][0][0] if r['cumuls'] else None})
