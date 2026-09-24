@@ -43,6 +43,29 @@ def texte(c):
     c = html.unescape(re.sub(r'<[^>]+>', '', c))
     return re.sub(r'\n\s*\n+', '\n\n', re.sub(r'[ \t]+', ' ', c)).strip()
 
+
+VALEUR = re.compile(r"\d+(?:[,.]\d+)?\s*(?:mm|km/h|cm|m3/s|m³/s)\b")
+def detail(c):
+    """Texte complet de la fiche : intertitres, paragraphes et listes de valeurs, sans images."""
+    c = re.sub(r'<(script|style)[^>]*>.*?</\1>', '', c, flags=re.S)
+    c = re.sub(r'<img[^>]*>', '', c)
+    c = re.sub(r'<br[^>]*>|</p>|</li>|</h\d>|</tr>|</div>', '\n', c)
+    c = re.sub(r'<td[^>]*>', ' | ', c)
+    lignes = [re.sub(r'\s+', ' ', html.unescape(re.sub(r'<[^>]+>', '', l))).strip(' |') for l in c.split('\n')]
+    lignes = [l for l in lignes if l and not re.match(r'(Lame d|Image|Carte des|Graphique|Animation|Voir |Photo|Gros titre|Coupure|Densit|Impacts de foudre)', l)]
+    out, liste = [], []
+    def flush():
+        if liste: out.append('<ul>' + ''.join(f'<li>{html.escape(x)}</li>' for x in liste) + '</ul>'); liste.clear()
+    for l in lignes[2:] if len(lignes) > 2 else lignes:
+        if l.endswith(':') and len(l) < 160:
+            flush(); out.append(f'<h3>{html.escape(l)}</h3>')
+        elif VALEUR.search(l) and len(l) < 200 and (re.match(r'[-*]?\s*\d', l) or re.match(r"[A-ZÉÈÀÂ][^:]{0,60}:\s*\d", l) or re.match(r'(à|au|aux|sur|en)\s', l, re.I)):
+            liste.append(l.rstrip(' ;'))
+        else:
+            flush(); out.append(f'<p>{html.escape(l)}</p>')
+    flush()
+    return ''.join(out)
+
 def liste(slug):
     s = page(slug); c = contenu(s) or s
     out, vus = [], set()
@@ -64,7 +87,7 @@ header,main,footer{max-width:1100px;margin:auto;padding:16px}header h1{margin:.2
 table{width:100%;border-collapse:collapse;background:var(--card)}th,td{padding:8px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top}
 .maj{font-weight:700}.badge{background:#c62828;color:#fff;border-radius:4px;padding:1px 6px;font-size:.75em;margin-left:6px}
 input[type=search]{width:100%;padding:10px;margin:8px 0 16px;border:1px solid var(--bd);border-radius:6px;background:var(--card);color:var(--fg)}
-.fiche{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:16px}.chiffre{font-size:1.15em;font-weight:700;color:var(--acc)}
+.fiche h3{font-size:1em;margin:1em 0 .3em}.fiche ul{margin:.2em 0 .8em}.fiche{margin-bottom:16px;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:16px}.chiffre{font-size:1.15em;font-weight:700;color:var(--acc)}
 footer{color:var(--mut);font-size:.85em}nav a{margin-right:14px}
 .carte{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px}@media(max-width:760px){.carte{grid-template-columns:1fr}}
 svg path{fill:var(--dep);stroke:var(--card);stroke-width:1.5;cursor:pointer}svg path.on{fill:var(--sel)}svg path:hover{opacity:.75}
@@ -107,6 +130,7 @@ for i, e in enumerate(tous, 1):
              + (f'<h2>Rafale maximale</h2><p class="chiffre">{raf[0]} km/h <small>à {html.escape(raf[1])}{f" ({raf[2]})" if raf[2] else ""}</small></p>' if raf else '')
              + f'<h2>Départements concernés</h2><p>{", ".join(f"{NOMS[x]} ({x})" for x in deps) or "non déterminés"}</p></div>'
              f'<p><a href="{ARCH}{BASE}{e["slug"]}">Consulter la fiche complète de Météo-France (archive)</a></p>')
+    corps = corps.replace('<p><a href="' + ARCH, '<div class="fiche"><h2>Toutes les valeurs relevées (texte intégral de la fiche)</h2>' + detail(c) + '</div><p><a href="' + ARCH, 1)
     open(os.path.join(d, 'index.html'), 'w', encoding='utf-8').write(doc(f'{e["date"]} – {e["titre"]}', corps, '../../'))
     index.append({'n': n, 'date': e['date'], 'titre': e['titre'], 'annee': annee(e['date']), 'url': f'evenements/{n}_{slug}/',
                   'majeur': maj, 'deps': deps, 'max_mm': r['cumuls'][0][0] if r['cumuls'] else None})
