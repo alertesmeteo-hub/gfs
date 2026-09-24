@@ -22,7 +22,7 @@ Les deux crues avaient été précédées d'un été plutôt sec et d'un mois de
 
 ### Les pluies des 3 et 4 octobre
 
-Elles sont dans l'ensemble nettement plus faibles que celles des 29 et 30 septembre : l'isohyète 100 mm couvre une zone bien moins étendue, loin d'atteindre la vallée du Rhône, et les pluies sont deux à trois fois moins fortes du mont Lozère au sud de l'Aigoual. Seul subsiste le maximum de 200 à 250 mm sur les hauts bassins ardéchois (Chassezac-Ardèche). En revanche, un maximum d'environ 200 mm apparaît du Gard (Gardon) au Vidourle, sur la partie moyenne de ces bassins, qui avait reçu bien moins de pluie fin septembre : les maxima se sont décalés des hauts bassins cévenols vers la vallée du Rhône et la côte.
+Elles sont dans l'ensemble nettement plus faibles que celles des 29 et 30 septembre : l'isohyète 100 mm couvre une zone bien moins étendue, loin d'atteindre la vallée du Rhône, et les pluies sont deux à trois fois moins fortes du mont Lozère au sud de l'Aigoual. Seul subsiste le maximum de 200 à 250 mm sur les hauts bassins ardéchois (Chassezac-Ardèche). En revanche, un maximum d'environ 200 mm apparaît du Gard au Vidourle, sur la partie moyenne de ces bassins, qui avait reçu bien moins de pluie fin septembre : les maxima se sont décalés des hauts bassins cévenols vers la vallée du Rhône et la côte.
 
 **Intensités remarquables le 4 octobre :**
 - Canaules et A. : 196 mm en 4 h ;

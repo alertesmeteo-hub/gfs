@@ -4,7 +4,7 @@ Débordement de toutes les rivières et houle dévastatrice : le département es
 
 ### Les crues
 
-Toutes les rivières connaissent des crues catastrophiques, notamment le Paillon dans le centre de Nice, la Cagne à Cagnes-sur-Mer, la Siagne près de son embouchure et le Var à Saint-Laurent-du-Var.
+Toutes les rivières connaissent des crues catastrophiques, notamment le Paillon dans le centre de Nice, la Cagne à Cagnes-sur-mer, la Siagne près de son embouchure et le Var à Saint-Laurent du Var.
 
 ### La houle
 
@@ -13,3 +13,5 @@ L'épisode s'accompagne d'une très forte houle de sud-ouest en Méditerranée, 
 La différence de pression entre Perpignan et Ajaccio dépasse 18 hPa pendant plus de douze heures consécutives les 11 et 12 décembre, une situation très rare que l'on retrouvera en janvier 1994.
 
 Le département a été touché deux fois cette année-là, la première en juin, ce qui confère à 1957 un caractère exceptionnel. L'épisode est décrit dans le bulletin de la section météorologie de la chambre d'agriculture des Alpes-Maritimes de 1957.
+
+Cet épisode correspond également à la tempête du 12 décembre 1957.

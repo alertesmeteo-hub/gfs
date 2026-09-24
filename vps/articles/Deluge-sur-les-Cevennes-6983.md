@@ -9,7 +9,7 @@ D'après P. Fontaine et C. Portela (*Causes météorologiques des grandes crues 
 - la Cèze atteint 10,20 m le 1er octobre au matin et inonde sa basse vallée, avec 2,50 m d'eau le soir à Codolet ;
 - l'Ardèche, à Vallon, passe d'un mètre avant les pluies à 12,20 m en quelques heures.
 
-Une crue du Bas-Rhône s'amorce, accentuée par les apports d'affluents plus septentrionaux (Eyrieux, Doux, Cance) : les bas quartiers de Pont-Saint-Esprit se retrouvent sous 2,50 m d'eau. Alès est inondée et le pont de Ners, en aval, est emporté ; de graves dommages sont signalés à Saint-Jean-du-Gard. Dans l'Hérault, où les crues sont un peu moins violentes que dans le Gard et l'Ardèche, les maisons et les voies de communication subissent néanmoins d'importants dégâts, surtout dans les régions de Lodève et de Ganges.
+Une crue du Bas-Rhône s'amorce, accentuée par les apports d'affluents plus septentrionaux (Erieux, Doux, Cance) : les bas quartiers de Pont-Saint-Esprit se retrouvent sous 2,50 m d'eau. Alès est inondée et le pont de Ners, en aval, est emporté ; de graves dommages sont signalés à Saint-Jean-du-Gard. Dans l'Hérault, où les crues sont un peu moins violentes que dans le Gard et l'Ardèche, les maisons et les voies de communication subissent néanmoins d'importants dégâts, surtout dans les régions de Lodève et de Ganges.
 
 ### Les pluies
 
@@ -18,7 +18,7 @@ Durant ces deux jours, les hauteurs d'eau atteignent en maints endroits le doubl
 Les maxima se situent sur le flanc sud des massifs orientés d'ouest en est : le mont Aigoual (410 mm à Valleraugue), les monts Bouges et Lozère (près de 400 mm au nord-ouest de Saint-Jean-du-Gard), le Mézene et le Gerbier des Joncs (240 mm à Montpezat). Cette répartition révèle l'influence du relief et suggère un courant humide de sud qui libère d'énormes quantités d'eau en franchissant ces massifs.
 
 **Intensités remarquables le 30 septembre :**
-- mont Aigoual : 101 mm en 4 h ;
+- Mont-Aigoual : 101 mm en 4 h ;
 - Valleraugue : 222 mm en 5 h ;
 - Alès : 140 mm en 2 h ;
 - La Grand-Combe : 132 mm en 3 h ;
