@@ -14,7 +14,7 @@ En mars 1956, le Var et les Alpes-Maritimes connaissent un mois très pluvieux, 
 
 Les pluies des 24 et 25 tombent donc sur des sols déjà gorgés d'eau. Elles provoquent une crue rapide du Gapeau et de ses affluents, des inondations catastrophiques et des dégâts considérables dans le secteur de Hyères. En deux jours, le sud du Var reçoit 100 à 150 mm : 152 mm à Signes, dont 110 mm le 24 ; 131 mm à Collobrières, dont 116 mm le 24.
 
-Mars 1956 est le mois de mars le plus pluvieux à Toulon et au Cannet-des-Maures (Le-Cannet-des-Maures) sur la période 1946-2013. À Nice, il pleut sans discontinuer du 22 mars à 18 h 45 au 25 mars à 12 h 55, soit pendant 66 heures.
+Mars 1956 est le mois de mars le plus pluvieux à Toulon et au Cannet-des-Maures sur la période 1946-2013. À Nice, il pleut sans discontinuer du 22 mars à 18 h 45 au 25 mars à 12 h 55, soit pendant 66 heures.
 
 La région sortait à peine de la vague de froid sans précédent de février 1956, qui avait anéanti toutes les cultures ; un mois plus tard, elle est dévastée par les inondations.
 
