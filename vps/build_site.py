@@ -147,6 +147,7 @@ table{width:100%;border-collapse:collapse;background:var(--card)}th,td{padding:8
 .maj{font-weight:700}.badge{background:#c62828;color:#fff;border-radius:4px;padding:1px 6px;font-size:.75em;margin-left:6px}
 input[type=search]{width:100%;padding:10px;margin:8px 0 16px;border:1px solid var(--bd);border-radius:6px;background:var(--card);color:var(--fg)}
 .fiche h3{font-size:1em;margin:1em 0 .3em}.fiche ul{margin:.2em 0 .8em}.fiche{margin-bottom:16px;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:16px}.chiffre{font-size:1.15em;font-weight:700;color:var(--acc)}
+a.btn{display:inline-block;background:var(--acc);color:#fff;padding:8px 14px;border-radius:6px;text-decoration:none;font-weight:600}a.btn:hover{opacity:.85}
 footer{color:var(--mut);font-size:.85em}nav a{margin-right:14px}
 .carte{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px}@media(max-width:760px){.carte{grid-template-columns:1fr}}
 svg path{fill:var(--dep);stroke:var(--card);stroke-width:1.5;cursor:pointer}svg path.on{fill:var(--sel)}svg path:hover{opacity:.75}
@@ -190,6 +191,8 @@ for i, e in enumerate(tous, 1):
              + f'<h2>Départements concernés</h2><p>{", ".join(f"{NOMS[x]} ({x})" for x in deps) or "non déterminés"}</p></div>'
              f'<p><a target="_blank" rel="noopener" href="{ARCH}{BASE}{e["slug"]}">Consulter la fiche complète de Météo-France (archive)</a></p>')
     corps = corps.replace('<p><a target="_blank" rel="noopener" href="' + ARCH, '<div class="fiche"><h2>Relevés détaillés</h2>' + detail(c) + '</div><p><a target="_blank" rel="noopener" href="' + ARCH, 1)
+    lien = f'<p class="source"><a class="btn" target="_blank" rel="noopener" href="{ARCH}{BASE}{e["slug"]}">Consulter la fiche complète de Météo-France (archive) ↗</a></p>'
+    corps = lien + corps
     open(os.path.join(d, 'index.html'), 'w', encoding='utf-8').write(doc(f'{e["date"]} – {e["titre"]}', corps, '../../'))
     index.append({'n': n, 'date': e['date'], 'titre': e['titre'], 'annee': annee(e['date']), 'url': f'evenements/{n}_{slug}/',
                   'majeur': maj, 'deps': deps, 'max_mm': r['cumuls'][0][0] if r['cumuls'] else None})
