@@ -19,7 +19,7 @@ Le 28 février, une perturbation remontant de Méditerranée apporte de fortes p
 - **Hérault** : 184 mm à Florensac, 179 mm à Castanet-le-Haut, 173 mm à Béziers, 167 mm à Bédarieux et à Marseillan, 158 mm à Berlou, 153 mm à Florensac ;
 - **Gard** : 130 mm à Aigues-Mortes, 98 mm à Colognac, 96 mm à Montdardier.
 
-(La source mentionne deux valeurs différentes pour Florensac, 184 mm et 153 mm.)
+Florensac apparaît deux fois dans les relevés, avec 184 mm et 153 mm.
 
 ### Intensités remarquables
 
