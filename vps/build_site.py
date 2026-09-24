@@ -8,6 +8,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from departements import NOMS, REGIONS, detecter
 from resume import resumer
 
+REDIGES = {}
+for _f in sorted(__import__('glob').glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resumes', '*.json'))):
+    REDIGES.update(json.load(open(_f, encoding='utf-8')))
 TS = '20221109122403'
 BASE = 'http://pluiesextremes.meteo.fr/france-metropole/'
 WB = f'https://web.archive.org/web/{TS}id_/'
@@ -61,7 +64,7 @@ header,main,footer{max-width:1100px;margin:auto;padding:16px}header h1{margin:.2
 table{width:100%;border-collapse:collapse;background:var(--card)}th,td{padding:8px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top}
 .maj{font-weight:700}.badge{background:#c62828;color:#fff;border-radius:4px;padding:1px 6px;font-size:.75em;margin-left:6px}
 input[type=search]{width:100%;padding:10px;margin:8px 0 16px;border:1px solid var(--bd);border-radius:6px;background:var(--card);color:var(--fg)}
-.fiche{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:16px}.chiffre{font-size:1.6em;font-weight:700;color:var(--acc)}
+.fiche{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:16px}.chiffre{font-size:1.15em;font-weight:700;color:var(--acc)}
 footer{color:var(--mut);font-size:.85em}nav a{margin-right:14px}
 .carte{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px}@media(max-width:760px){.carte{grid-template-columns:1fr}}
 svg path{fill:var(--dep);stroke:var(--card);stroke-width:1.5;cursor:pointer}svg path.on{fill:var(--sel)}svg path:hover{opacity:.75}
@@ -90,7 +93,15 @@ for i, e in enumerate(tous, 1):
     maj = e['slug'] in majeurs
     cum = ''.join(f'<tr><td class="chiffre">{v:g} mm</td><td>{html.escape(l)}{f" ({dp})" if dp else ""}</td></tr>' for v, l, dp in r['cumuls'])
     raf = r['rafale']
-    corps = (f'<p><b>{html.escape(e["date"])}</b>{" <span class=badge>Événement majeur</span>" if maj else ""}</p><div class="fiche">'
+    rr = REDIGES.get(slug)
+    if rr:
+        ch = ''.join(f'<tr><th>{html.escape(k)}</th><td class="chiffre">{html.escape(v)}</td></tr>' for k, v in rr['chiffres'])
+        corps = (f'<p><b>{html.escape(e["date"])}</b>{" <span class=badge>Événement majeur</span>" if maj else ""}</p><div class="fiche">'
+                 f'<h2>{html.escape(rr["titre"])}</h2><p>{html.escape(rr["texte"])}</p><h2>Chiffres clés</h2><table>{ch}</table>'
+                 f'<h2>Départements concernés</h2><p>{", ".join(f"{NOMS[x]} ({x})" for x in deps) or "non déterminés"}</p></div>'
+                 f'<p><a href="{ARCH}{BASE}{e["slug"]}">Consulter la fiche complète de Météo-France (archive)</a></p>')
+    else:
+      corps = (f'<p><b>{html.escape(e["date"])}</b>{" <span class=badge>Événement majeur</span>" if maj else ""}</p><div class="fiche">'
              f'<h2>Résumé</h2><p>{html.escape(r["contexte"]) or "—"}</p>'
              + (f'<h2>Cumuls les plus élevés</h2><table>{cum}</table>' if cum else '')
              + (f'<h2>Rafale maximale</h2><p class="chiffre">{raf[0]} km/h <small>à {html.escape(raf[1])}{f" ({raf[2]})" if raf[2] else ""}</small></p>' if raf else '')
