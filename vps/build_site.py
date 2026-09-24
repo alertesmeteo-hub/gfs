@@ -45,26 +45,85 @@ def texte(c):
 
 
 VALEUR = re.compile(r"\d+(?:[,.]\d+)?\s*(?:mm|km/h|cm|m3/s|m³/s)\b")
+LIGNE = re.compile(r"^[-*•]?\s*(?P<v>\d+(?:[,.]\d+)?\s*(?:mm|km/h|cm|m3/s|m³/s))\s+(?:à|a|au|aux|sur|en)\s+(?P<l>[^()/;]+?)\s*(?:\((?P<d>\d{2}|2A|2B)\s*\))?(?P<p>(?:\s*[,;]|\s+(?:dont|en|le|entre|record|soit)\b).*)?$")
+INLINE = re.compile(r"(?P<v>\d+(?:[,.]\d+)?\s*(?:mm|km/h))\s+(?:à|au|aux)\s+(?P<l>(?:l['’]|la |le |les )?[A-ZÉÈÀÂÎ][\w'’.-]*(?:[ -](?:de|du|des|la|le|les|d['’]|sur|en|[A-ZÉÈÀÂÎ][\w'’.-]*))*)\s*(?:\((?P<d>\d{2}|2A|2B)\))?")
+PERIODE = re.compile(r"(?i)(?:en|sur)\s+(?:les\s+|la\s+)?\d+\s*(?:h\b|heures?|jours?|min(?:utes)?)|sur la journée|en 24 ?h")
+DUREE = re.compile(r"(\d+(?:[,.]\d+)?\s*mm)\s+en\s+(\d+\s*(?:h\b|heures?|min(?:utes)?|jours?))")
+LIEU = re.compile(r"(?:station(?: automatique| météorologique)?(?: de| d['’]| du)?|poste(?: de| d['’])?|\bà|\bA)\s+((?:l['’]|la |le |les )?[A-ZÉÈÀÂÎ][\w'’.-]*(?:[ -](?:de|du|des|la|le|les|sur|en|[A-ZÉÈÀÂÎ][\w'’.-]*))*)")
+def titre_neutre(h):
+    h = h.rstrip(' :').strip('* ')
+    h = re.sub(r"(?i)^(valeurs|hauteurs|cumuls|intensités)\s+(remarquables|maximales)?\s*(relevées|mesurées|recueillies)?\s*", "", h)
+    h = re.sub(r"(?i)^(de pluie|des précipitations)\s*", "", h)
+    h = re.sub(r"(?i)^en (\d+) jours?", r"cumuls sur \1 jours", h)
+    h = h.replace("Intensités remarquables", "").strip(" ,:")
+    return (h[:1].upper() + h[1:]) if h else "Relevés"
 def detail(c):
-    """Texte complet de la fiche : intertitres, paragraphes et listes de valeurs, sans images."""
+    """Relevés factuels de la fiche (valeurs, stations), présentés sous forme de tableaux ; aucune prose recopiée."""
     c = re.sub(r'<(script|style)[^>]*>.*?</\1>', '', c, flags=re.S)
     c = re.sub(r'<img[^>]*>', '', c)
-    c = re.sub(r'<br[^>]*>|</p>|</li>|</h\d>|</tr>|</div>', '\n', c)
+    c = re.sub(r'<tr[^>]*>.*?</tr>', lambda m: re.sub(r'</?br[^>]*>|</?center>|</?p[^>]*>|</?strong>|\s+', ' ', m.group(0)), c, flags=re.S)
+    c = re.sub(r'\n', ' ', c)
+    c = re.sub(r'</?br[^>]*>|<p[^>]*>|</p>|<li[^>]*>|</li>|</?ul[^>]*>|</?center>|</h\d>|</tr>|</?div[^>]*>', '\n', c)
     c = re.sub(r'<td[^>]*>', ' | ', c)
     lignes = [re.sub(r'\s+', ' ', html.unescape(re.sub(r'<[^>]+>', '', l))).strip(' |') for l in c.split('\n')]
-    lignes = [l for l in lignes if l and not re.match(r'(Lame d|Image|Carte des|Graphique|Animation|Voir |Photo|Gros titre|Coupure|Densit|Impacts de foudre)', l)]
-    out, liste = [], []
+    blocs, titre, rows = [], 'Relevés', []
+    principal = ''
     def flush():
-        if liste: out.append('<ul>' + ''.join(f'<li>{html.escape(x)}</li>' for x in liste) + '</ul>'); liste.clear()
-    for l in lignes[2:] if len(lignes) > 2 else lignes:
+        nonlocal titre
+        if rows:
+            if len(titre) > 70: titre = 'Rafales relevées' if 'km/h' in rows[0][0] else 'Relevés'
+            tr = ''.join(f'<tr><td class="chiffre">{html.escape(v)}</td><td>{html.escape(l)}</td><td>{html.escape(d)}</td><td>{html.escape(p)}</td></tr>' for v, l, d, p in rows)
+            blocs.append(f'<h3>{html.escape(titre)}</h3><table><thead><tr><th>Valeur</th><th>Lieu</th><th>Dép.</th><th>Précision</th></tr></thead><tbody>{tr}</tbody></table>')
+            rows.clear()
+    tab = []
+    def flush_tab():
+        if len(tab) >= 2 and any(re.search(r'\d', ' '.join(r)) for r in tab[1:]):
+            head, body = tab[0], tab[1:]
+            th = ''.join(f'<th>{html.escape(h)}</th>' for h in head)
+            tb = ''.join('<tr>' + ''.join(f'<td>{html.escape(c)}</td>' for c in r) + '</tr>' for r in body)
+            blocs.append(f'<h3>{html.escape(titre)}</h3><table><thead><tr>{th}</tr></thead><tbody>{tb}</tbody></table>')
+        tab.clear()
+    for l in lignes:
+        if not l: continue
         if l.endswith(':') and len(l) < 160:
-            flush(); out.append(f'<h3>{html.escape(l)}</h3>')
-        elif VALEUR.search(l) and len(l) < 200 and (re.match(r'[-*]?\s*\d', l) or re.match(r"[A-ZÉÈÀÂ][^:]{0,60}:\s*\d", l) or re.match(r'(à|au|aux|sur|en)\s', l, re.I)):
-            liste.append(l.rstrip(' ;'))
-        else:
-            flush(); out.append(f'<p>{html.escape(l)}</p>')
-    flush()
-    return ''.join(out)
+            flush(); flush_tab(); t = titre_neutre(l)
+            if len(t) < 30 and principal: t = principal + ' – ' + t[:1].lower() + t[1:]
+            else: principal = t
+            titre = t; continue
+        m = LIGNE.match(l)
+        if m and len(l) < 200:
+            p = (m.group('p') or '').strip(' ,;.')
+            rows.append((m.group('v'), m.group('l').strip(' ,'), m.group('d') or '', p))
+            continue
+        if l.count('|') >= 2:
+            cells = [x.strip() for x in l.split('|') if x.strip()]
+            if cells: tab.append(cells)
+            continue
+        elif tab:
+            flush_tab()
+        inl = list(INLINE.finditer(l))
+        if inl and not (l.endswith(':')):
+            per = PERIODE.search(l)
+            for x in inl:
+                rows.append((x.group('v'), x.group('l').strip(' ,.'), x.group('d') or '', per.group(0) if per else ''))
+            continue
+        dur = list(DUREE.finditer(l))
+        if dur and len(l) < 400:
+            lieu = LIEU.findall(l[:dur[0].start()])
+            for x in dur:
+                rows.append((x.group(1), lieu[-1] if lieu else '', '', 'en ' + x.group(2)))
+            continue
+        m2 = re.match(r"^[-*•]?\s*(?P<l>[A-ZÉÈÀÂÎ][^:/]{1,50}?)\s*(?:\((?P<d>\d{2}|2A|2B)\))?\s*:\s*(?P<v>\d+(?:[,.]\d+)?\s*mm)(?P<p>.*)$", l)
+        if m2:
+            rows.append((m2.group('v'), m2.group('l'), m2.group('d') or '', m2.group('p').strip(' ,;.')))
+    flush(); flush_tab()
+    out = []
+    for b in blocs:
+        if out and b.startswith('<h3>Relevés</h3>') and out[-1].startswith('<h3>Relevés</h3>') and '<th>Valeur</th>' in b and '<th>Valeur</th>' in out[-1]:
+            out[-1] = out[-1].replace('</tbody></table>', b.split('<tbody>',1)[1].replace('</tbody></table>','') + '</tbody></table>')
+        else: out.append(b)
+    blocs = out
+    return ''.join(blocs) or '<p>Les valeurs de cette fiche figurent dans le résumé et les chiffres clés ci-dessus.</p>'
 
 def liste(slug):
     s = page(slug); c = contenu(s) or s
@@ -130,7 +189,7 @@ for i, e in enumerate(tous, 1):
              + (f'<h2>Rafale maximale</h2><p class="chiffre">{raf[0]} km/h <small>à {html.escape(raf[1])}{f" ({raf[2]})" if raf[2] else ""}</small></p>' if raf else '')
              + f'<h2>Départements concernés</h2><p>{", ".join(f"{NOMS[x]} ({x})" for x in deps) or "non déterminés"}</p></div>'
              f'<p><a target="_blank" rel="noopener" href="{ARCH}{BASE}{e["slug"]}">Consulter la fiche complète de Météo-France (archive)</a></p>')
-    corps = corps.replace('<p><a target="_blank" rel="noopener" href="' + ARCH, '<div class="fiche"><h2>Toutes les valeurs relevées (texte intégral de la fiche)</h2>' + detail(c) + '</div><p><a target="_blank" rel="noopener" href="' + ARCH, 1)
+    corps = corps.replace('<p><a target="_blank" rel="noopener" href="' + ARCH, '<div class="fiche"><h2>Relevés détaillés</h2>' + detail(c) + '</div><p><a target="_blank" rel="noopener" href="' + ARCH, 1)
     open(os.path.join(d, 'index.html'), 'w', encoding='utf-8').write(doc(f'{e["date"]} – {e["titre"]}', corps, '../../'))
     index.append({'n': n, 'date': e['date'], 'titre': e['titre'], 'annee': annee(e['date']), 'url': f'evenements/{n}_{slug}/',
                   'majeur': maj, 'deps': deps, 'max_mm': r['cumuls'][0][0] if r['cumuls'] else None})
