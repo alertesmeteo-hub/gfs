@@ -25,4 +25,4 @@ Le matin, le sud du Var et la Côte d'Azur sont touchés dans une moindre mesure
 
 **Ardèche, le 13 :** Grospierres : 247 mm en 24 h, dont 118,5 mm en 2 h, 75 mm en 1 h et 43,5 mm en 30 min.
 
-La source situe au 13 septembre les pluies du Var et des Alpes-Maritimes dans le récit, mais au 12 dans la liste des intensités.
+Les relevés d’intensité du Var et des Alpes-Maritimes sont toutefois datés du 12 septembre, alors que le récit place ces pluies le matin du 13.
