@@ -4,9 +4,10 @@ set -euo pipefail
 DOM=evenements-majeurs.alertes-meteo.com
 ROOT=/var/www/evenements-majeurs
 sudo mkdir -p "$ROOT" && sudo chown "$USER" "$ROOT"
-curl -fsSL -o /tmp/build_site.py https://raw.githubusercontent.com/alertesmeteo-hub/gfs/claude/modest-cannon-sidw4j/vps/build_site.py
-echo "1/3 Téléchargement et génération du site (1 à 3 h, relançable sans perte)…"
-python3 /tmp/build_site.py "$ROOT" 2>&1 | tee "$ROOT/_build.log" | grep --line-buffered -E "événements|TERMINÉ|ABSENT|ok [0-9]*0 "
+SRC=https://raw.githubusercontent.com/alertesmeteo-hub/gfs/claude/modest-cannon-sidw4j/vps
+mkdir -p /tmp/em && for f in build_site.py departements.py resume.py carte_departements.json; do curl -fsSL -o /tmp/em/$f $SRC/$f; done
+echo "1/3 Téléchargement des 469 fiches et génération du site (environ 30 min à 1 h, relançable sans perte)…"
+python3 /tmp/em/build_site.py "$ROOT" 2>&1 | tee "$ROOT/_build.log" | grep --line-buffered -E "événements|TERMINÉ|ABSENT|ok [0-9]*0 "
 echo "2/3 Configuration nginx…"
 sudo tee /etc/nginx/sites-available/$DOM >/dev/null <<NGX
 server {
