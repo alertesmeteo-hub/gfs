@@ -1,0 +1,1190 @@
+[
+ {
+  "id": "tech-001",
+  "n": "T1",
+  "date": "1330",
+  "titre": "Inondation du Tech dans la basse plaine",
+  "resume": "Les inondations du Tech rendent incultivables les terres de Mossellons, près de Saint-Cyprien, et emportent les moulins de Brouilla ; seigneurs et habitants plantent un bois et construisent des barrages pour ramener l'eau au fleuve.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1330,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 1."
+ },
+ {
+  "id": "tech-002",
+  "n": "T2",
+  "date": "1340",
+  "titre": "Crue du Tech au Boulou",
+  "resume": "Une crue empêche la traversée du Tech en barque au Boulou : le roi Pierre IV d'Aragon doit remonter jusqu'au pont de Céret.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1340,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 2."
+ },
+ {
+  "id": "tech-003",
+  "n": "T3",
+  "date": "13 mars 1342",
+  "titre": "Inondation entre Elne et Corneilla-del-Vercol",
+  "resume": "Une crue du Tech ravage le territoire au nord d'Elne ; le roi de Majorque fait ramener le fleuve dans son lit, au sud de la ville.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1342,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 3."
+ },
+ {
+  "id": "tech-004",
+  "n": "T4",
+  "date": "Février 1343",
+  "titre": "Aiguat et inondation à Saint-Cyprien",
+  "resume": "Une inondation coupe la route de Saint-Cyprien à Perpignan ; un canal de dérivation des eaux du Tech oppose le seigneur de Mossellons au chapitre d'Elne.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1343,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 4."
+ },
+ {
+  "id": "tech-005",
+  "n": "T5",
+  "date": "6 juin 1377",
+  "titre": "Rupture de berge du Tech à Elne",
+  "resume": "Le Tech rompt sa rive nord au passage de la barque d'Elne et détruit la route royale de Corneilla-del-Vercol ; une digue est autorisée.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1377,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 5."
+ },
+ {
+  "id": "tech-006",
+  "n": "T6",
+  "date": "1382-1383",
+  "titre": "Ordre royal de fixer le cours du Tech",
+  "resume": "Pierre IV d'Aragon nomme des commissaires aux pleins pouvoirs pour fixer le cours du Tech et des bras de rivière du Roussillon et du Vallespir.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1382,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 6."
+ },
+ {
+  "id": "tech-007",
+  "n": "T7",
+  "date": "Novembre 1421",
+  "titre": "Crue majeure du Tech dans la basse vallée",
+  "resume": "Une crue violente emporte maisons, meubles et biens jusqu'aux plages d'Elne, Latour et Saint-Cyprien ; un événement probablement séculaire.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1421,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 7."
+ },
+ {
+  "id": "tech-008",
+  "n": "T8",
+  "date": "Hiver 1421-1422",
+  "titre": "Inondation à Collioure",
+  "resume": "Une pluie abondante fait déborder le Coma Xeric et détruit un pont et des maisons du couvent des Dominicains de Collioure.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1422,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 8."
+ },
+ {
+  "id": "tech-009",
+  "n": "T9",
+  "date": "Octobre 1444",
+  "titre": "Grands déluges d'eaux à Argelès",
+  "resume": "Le Tech dépose sur ses berges et sur la plage d'Argelès des bois d'œuvre arrachés lors de grandes inondations.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1444,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 9."
+ },
+ {
+  "id": "tech-010",
+  "n": "T10",
+  "date": "1er février 1544",
+  "titre": "Les remparts d'Elne abattus par l'inondation",
+  "resume": "Une crue du Tech fait s'effondrer une partie importante des murs de la ville basse d'Elne.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1544,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 10."
+ },
+ {
+  "id": "tech-011",
+  "n": "T11",
+  "date": "Novembre 1566",
+  "titre": "Retenue du moulin de Brouilla emportée",
+  "resume": "Une inondation du Tech ruine la retenue du canal du moulin à farine de Brouilla.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1566,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 11."
+ },
+ {
+  "id": "tech-012",
+  "n": "T12",
+  "date": "Avril 1608",
+  "titre": "Canal du moulin de Latour-Bas-Elne emporté",
+  "resume": "Les « ayguats » du Tech emportent la retenue et le canal d'amenée du moulin de Latour-Bas-Elne.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1608,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 12."
+ },
+ {
+  "id": "tech-013",
+  "n": "T13",
+  "date": "9 et 20 octobre 1702",
+  "titre": "Deux aiguats inondent Collioure",
+  "resume": "Deux abats d'eau font déborder le Douy et le Coma Xeric dans Collioure ; le 20 octobre, six maisons et deux corps de garde s'effondrent et un homme se noie.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1702,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 13."
+ },
+ {
+  "id": "tech-014",
+  "n": "T14",
+  "date": "1730",
+  "titre": "Grêle et inondations dans le bassin du Tech",
+  "resume": "La grêle et les inondations frappent la viguerie du Roussillon et du Vallespir ; le bassin du Tech reçoit 57 % des indemnités royales.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1730,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 14."
+ },
+ {
+  "id": "tech-015",
+  "n": "T15",
+  "date": "Novembre 1735 - avril 1736",
+  "titre": "Débordements répétés du Tech dans la plaine",
+  "resume": "Six mois de pluies font déborder le Tech ; les terres sont emportées jusqu'au tuf et la route de Perpignan à Collioure est coupée.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1735,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 15."
+ },
+ {
+  "id": "tech-016",
+  "n": "T16",
+  "date": "27 janvier 1740",
+  "titre": "Crue du Tech de janvier 1740",
+  "resume": "Une forte crue dévaste la vallée du Tech, de Prats-de-Mollo à Argelès : terres emportées, troupeaux submergés, maisons abattues, 100 000 livres d'indemnités.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1740,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 16."
+ },
+ {
+  "id": "tech-017",
+  "n": "T17",
+  "date": "1751-1752",
+  "titre": "Débordements au pied des Albères",
+  "resume": "Les rivières des Albères débordent dans la plaine entre Palau-del-Vidre et Argelès et causent des pertes de récoltes.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1751,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 17."
+ },
+ {
+  "id": "tech-018",
+  "n": "T18",
+  "date": "6 août 1757",
+  "titre": "Le torrent de la Guillema envahit Prats-de-Mollo",
+  "resume": "Un violent orage fait déborder la Guillema, dont les rochers bouchent la voûte : la ville de Prats-de-Mollo est inondée et dévastée.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1757,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 18."
+ },
+ {
+  "id": "tech-019",
+  "n": "T19",
+  "date": "18 mai 1759",
+  "titre": "Nouvelle crue de la Guillema à Prats-de-Mollo",
+  "resume": "Une crue plus forte qu'en 1757 emporte les digues neuves, mais le quai reconstruit protège la ville.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1759,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 19."
+ },
+ {
+  "id": "tech-020",
+  "n": "T20",
+  "date": "8 décembre 1761",
+  "titre": "Débordements à Elne et à Maureillas",
+  "resume": "Un hiver très pluvieux multiplie les débordements du Tech ; le 8 décembre, terres ravinées à Elne et semences emportées dans le terroir de la Selva.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1761,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 20."
+ },
+ {
+  "id": "tech-021",
+  "n": "T21",
+  "date": "16 et 17 octobre 1763",
+  "titre": "Aiguat de Sant Galdric",
+  "resume": "Des pluies diluviennes sur le Canigou dévastent le haut Vallespir : 13 noyés, maisons, moulins et forges emportés, 125 000 livres d'indemnités royales.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1763,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 21."
+ },
+ {
+  "id": "tech-022",
+  "n": "T22",
+  "date": "19-20 juin 1765",
+  "titre": "Orages et débordements de juin 1765",
+  "resume": "Des orages répétés font déborder le Tech et ses affluents ; 271 715 livres de dommages dans le bassin, soit 59 % de la province.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1765,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 22."
+ },
+ {
+  "id": "tech-023",
+  "n": "T23",
+  "date": "29 septembre - 5 octobre 1766",
+  "titre": "Inondation d'octobre 1766",
+  "resume": "Une crue comparable à celle de 1763 mais centrée sur la plaine et les Albères : plus d'un million de livres de dégâts, le Tech change de lit.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1766,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 23."
+ },
+ {
+  "id": "tech-024",
+  "n": "T24",
+  "date": "25 juillet et 14 août 1768",
+  "titre": "Orages d'été à Tresserre et Montbolo",
+  "resume": "De violents orages font déborder le Tech à Tresserre et la rivière de Saint-Marsal entre Montbolo et Croanques.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1768,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 24."
+ },
+ {
+  "id": "tech-025",
+  "n": "T25",
+  "date": "Décembre 1768",
+  "titre": "Inondation à Croanques",
+  "resume": "Une inondation localisée emporte terres et murets au pied du puig de Formentera, à Taulis.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1768,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 25."
+ },
+ {
+  "id": "tech-026",
+  "n": "T26",
+  "date": "1er - 5 mai 1772",
+  "titre": "Crues de printemps dans la plaine d'Elne",
+  "resume": "Deux débordements du Tech et du canal d'Elne inondent toute la plaine et emportent blés, fèves et fourrages : 58 476 livres de dégâts.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1772,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 26."
+ },
+ {
+  "id": "tech-027",
+  "n": "T27",
+  "date": "7 décembre 1772",
+  "titre": "Pluie, grêle et crue du Tech",
+  "resume": "Une pluie torrentielle avec grêle fait déborder le Tech et les torrents des Albères, des Pyrénées et des Aspres ; la digue du canal d'Elne est emportée.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1772,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 27."
+ },
+ {
+  "id": "tech-028",
+  "n": "T28",
+  "date": "Septembre et novembre 1775",
+  "titre": "Débordements du Tech à Saint-Jean-Pla-de-Corts",
+  "resume": "Le Tech déborde deux fois et emporte terres, murets et arbres à Saint-Jean-Pla-de-Corts.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1775,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 28."
+ },
+ {
+  "id": "tech-029",
+  "n": "T29",
+  "date": "30 mai - 2 juin 1777",
+  "titre": "Inondation à Elne et Saint-André",
+  "resume": "Le Tech et la rivière de Sorède emportent les récoltes presque mûres : plus de 115 000 livres de pertes.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1777,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 29."
+ },
+ {
+  "id": "tech-030",
+  "n": "T30",
+  "date": "14-15 novembre et 14-15 décembre 1777",
+  "titre": "Inondations extraordinaires de 1777",
+  "resume": "Deux crues majeures ravagent toute la province ; 2 126 370 livres de dégâts dans le bassin du Tech.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1777,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 30."
+ },
+ {
+  "id": "tech-031",
+  "n": "T31",
+  "date": "Janvier 1787",
+  "titre": "Orage au mas del Bretó",
+  "resume": "Un orage fait déborder le còrrec d'en Banot et détruit quatre maisons et bergeries entre Reynès et Taillet.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1787,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 31."
+ },
+ {
+  "id": "tech-032",
+  "n": "T32",
+  "date": "1er novembre 1814",
+  "titre": "Crue du Tech de 1814",
+  "resume": "Huit jours de pluie : le pont du Boulou est emporté, le Tech change de lit à Elne et Argelès, le Riuferrer menace Arles-sur-Tech.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1814,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 32."
+ },
+ {
+  "id": "tech-033",
+  "n": "T33",
+  "date": "21-22 octobre et 22-23 novembre 1832",
+  "titre": "Inondations d'octobre et novembre 1832",
+  "resume": "Deux épisodes pluvieux, le second aggravé par une tempête marine, noient la plaine et emportent les ponts de Manyaques et de la Ribereta.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1832,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 33."
+ },
+ {
+  "id": "tech-034",
+  "n": "T34",
+  "date": "Octobre 1833",
+  "titre": "Brèches du Tech à Elne",
+  "resume": "Deux brèches dans l'endiguement détournent le Tech vers la mer à travers la plaine d'Elne et coupent la route de Collioure.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1833,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 34."
+ },
+ {
+  "id": "tech-035",
+  "n": "T35",
+  "date": "11-13 novembre 1834",
+  "titre": "Crue du Tech à Elne",
+  "resume": "Trois jours de pluie font déborder le Tech au nord d'Elne ; Prosper Mérimée doit attendre plusieurs jours pour gagner la ville.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1834,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 35."
+ },
+ {
+  "id": "tech-037",
+  "n": "T37",
+  "date": "17 septembre 1850",
+  "titre": "Crue de la Massane et inondation à Port-Vendres",
+  "resume": "Des pluies continues font déborder la Massane à Argelès et le Tech dans la plaine d'Elne ; à Port-Vendres, un bloc de 65 tonnes est déplacé.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1850,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 37."
+ },
+ {
+  "id": "tech-038",
+  "n": "T38",
+  "date": "28 septembre 1852 - 30 janvier 1853",
+  "titre": "Crues du Ravaner à Collioure",
+  "resume": "Le Ravaner emporte la passerelle de la route nationale 114 ; les piétons doivent traverser à gué pendant des mois.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1852,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 38."
+ },
+ {
+  "id": "tech-039",
+  "n": "T39",
+  "date": "5, 6 et 7 mai 1853",
+  "titre": "Crue de mai 1853 à Céret et Elne",
+  "resume": "La fonte des neiges et la pluie font déborder le Tech à Céret et à Elne ; la plaine est submergée jusqu'à Latour-Bas-Elne.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1853,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 39."
+ },
+ {
+  "id": "tech-040",
+  "n": "T40",
+  "date": "24 mai 1853",
+  "titre": "Crue du 24 mai 1853",
+  "resume": "Un orage après trois semaines de pluie : le Tech change de lit sur 2 km à Elne, une maison est emportée à Céret, la route du haut Vallespir est coupée.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1853,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 40."
+ },
+ {
+  "id": "tech-041",
+  "n": "T41",
+  "date": "Juin 1856",
+  "titre": "Débordement du Tech à Prats-de-Mollo",
+  "resume": "Le Tech abandonne son lit près de la Pollangarda et coupe la route nationale 115.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1856,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 41."
+ },
+ {
+  "id": "tech-042",
+  "n": "T42",
+  "date": "7-9 octobre 1861",
+  "titre": "Déluge sur Banyuls-sur-Mer",
+  "resume": "La Baillaury inonde la plaine de Banyuls sous deux mètres d'eau ; le Cagarell envahit le faubourg de Collioure.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1861,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 42."
+ },
+ {
+  "id": "tech-043",
+  "n": "T43",
+  "date": "1er-2 novembre 1864",
+  "titre": "Trombe d'eau sur les Albères",
+  "resume": "Une nuit d'orage et de grêle fait déborder tous les torrents des Albères ; Palau-del-Vidre et Argelès sont inondés.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1864,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 43."
+ },
+ {
+  "id": "tech-044",
+  "n": "T44",
+  "date": "18 avril 1865",
+  "titre": "Crue du Tech dans la plaine",
+  "resume": "Quatre jours de pluie font déborder le Tech à Brouilla, Elne et Argelès ; un chantier ferroviaire aggrave l'inondation à Palau-del-Vidre.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1865,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 44."
+ },
+ {
+  "id": "tech-045",
+  "n": "T45",
+  "date": "2 décembre 1866",
+  "titre": "Averses sur Port-Vendres et Banyuls",
+  "resume": "Trois heures d'averses font déborder les torrents de Port-Vendres et la Baillaury ; routes emportées.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1866,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 45."
+ },
+ {
+  "id": "tech-046",
+  "n": "T46",
+  "date": "8 et 9 mars 1872",
+  "titre": "Crue du Tech de mars 1872",
+  "resume": "Six jours de pluie provoquent une forte crue ; deux digues en terre de l'anse Aragon, à Ortaffa, sont détruites.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1872,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 46."
+ },
+ {
+  "id": "tech-047",
+  "n": "T47",
+  "date": "14 novembre 1873",
+  "titre": "Crue du Tech à Ortaffa",
+  "resume": "Une crue sans débordement affouille la digue de l'anse Aragon.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1873,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 47."
+ },
+ {
+  "id": "tech-048",
+  "n": "T48",
+  "date": "12 septembre 1875",
+  "titre": "Orages de septembre 1875",
+  "resume": "Deux orages violents : 110,7 mm en 12 heures à Perpignan, la digue de Palau-del-Vidre emportée, cinq victimes de la foudre et de la mer.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1875,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 48."
+ },
+ {
+  "id": "tech-050",
+  "n": "T50",
+  "date": "19 et 20 mars 1879",
+  "titre": "Mer démontée sur la Côte Vermeille",
+  "resume": "Pluies et tempête : la mer submerge l'îlot Saint-Vincent de Collioure et un éboulement coupe la voie ferrée entre Banyuls et Port-Vendres.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1879,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 50."
+ },
+ {
+  "id": "tech-051",
+  "n": "T51",
+  "date": "29 octobre 1879",
+  "titre": "Crue du Tech d'octobre 1879",
+  "resume": "Des averses orageuses portent le Tech à 2,40 m au Boulou et 3 m à Elne ; la route nationale 114 est submergée.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1879,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 51."
+ },
+ {
+  "id": "tech-052",
+  "n": "T52",
+  "date": "11 mai 1880",
+  "titre": "Crue du Tech de mai 1880",
+  "resume": "132,4 mm à Perpignan et 130 mm à Amélie ; le Tech déborde à Céret et à Elne et emporte une passerelle de chantier.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1880,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 52."
+ },
+ {
+  "id": "tech-053",
+  "n": "T53",
+  "date": "19-26 février 1881",
+  "titre": "Crue d'hiver de 1881",
+  "resume": "420 mm en huit jours à Amélie-les-Bains ; la crue creuse de nouvelles anses entre Ortaffa, Elne et Palau-del-Vidre.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1881,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 53."
+ },
+ {
+  "id": "tech-054",
+  "n": "T54",
+  "date": "Mars 1884",
+  "titre": "Crue du Tech de mars 1884",
+  "resume": "La crue entame la rive gauche entre Ortaffa et Elne et endommage plusieurs batardeaux.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1884,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 54."
+ },
+ {
+  "id": "tech-055",
+  "n": "T55",
+  "date": "10 juin 1885",
+  "titre": "Crue de juin 1885",
+  "resume": "Pluie d'orage sur tout le bassin : sauvetage de 13 personnes cernées au Pilou, pont d'Amélie endommagé, trombe sur l'Albère.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1885,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 55."
+ },
+ {
+  "id": "tech-056",
+  "n": "T56",
+  "date": "19 novembre 1885",
+  "titre": "Débordement du Tech à Elne",
+  "resume": "Le Tech déborde en amont du chemin de fer à Elne ; la digue ferroviaire contient les eaux.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1885,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 56."
+ },
+ {
+  "id": "tech-057",
+  "n": "T57",
+  "date": "22 septembre 1888",
+  "titre": "Crue du Tech de septembre 1888",
+  "resume": "Sept heures d'averses : le Tech inonde des maisons à Céret et déborde de Brouilla à Latour-Bas-Elne.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1888,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 57."
+ },
+ {
+  "id": "tech-058",
+  "n": "T58",
+  "date": "15 décembre 1888",
+  "titre": "Crue de décembre 1888 et inondation de Cerbère",
+  "resume": "Crue généralisée du Tech, route nationale 114 coupée à Elne ; à Cerbère, le Riberal refoulé par la tempête submerge le village.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1888,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 58."
+ },
+ {
+  "id": "tech-059",
+  "n": "T59",
+  "date": "6 janvier 1889",
+  "titre": "Inondations de la Côte Vermeille",
+  "resume": "Palau-del-Vidre sous un mètre d'eau, ouvriers sauvés à Paulilles, voie ferrée coupée à Collioure, quais inondés à Port-Vendres.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1889,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 59."
+ },
+ {
+  "id": "tech-062",
+  "n": "T62",
+  "date": "16 janvier 1897",
+  "titre": "Crue de janvier 1897 à Palau-del-Vidre",
+  "resume": "Trois jours de pluie font déborder le Tech de Brouilla à la mer ; Palau-del-Vidre a 1,50 m d'eau dans les rues, mais la neige limite la crue.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1897,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 62."
+ },
+ {
+  "id": "tech-063",
+  "n": "T63",
+  "date": "13 novembre 1897",
+  "titre": "Inondation de Cerbère et de Banyuls",
+  "resume": "Une trombe sur la Côte Vermeille : le Riberal dévaste Cerbère et sa gare, la Baillaury inonde Banyuls ; 200 à 300 sinistrés sans victime.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1897,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 63."
+ },
+ {
+  "id": "tech-064",
+  "n": "T64",
+  "date": "13 et 14 janvier 1898",
+  "titre": "Crue de janvier 1898",
+  "resume": "Après cinq mois de pluie, le Tech atteint 5,30 m à Arles ; la plaine d'Elne et d'Argelès devient un immense lac.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1898,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 64."
+ },
+ {
+  "id": "tech-065",
+  "n": "T65",
+  "date": "10 mars 1898",
+  "titre": "Inondation de mars 1898",
+  "resume": "Une semaine de pluie inonde de nouveau la plaine de Saint-Nazaire à Argelès ; la route du Perthus à Figueres est coupée.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1898,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 65."
+ },
+ {
+  "id": "tech-066",
+  "n": "T66",
+  "date": "20-24 novembre 1898",
+  "titre": "Crue de novembre 1898",
+  "resume": "Le Tech inonde la plaine de Saint-Cyprien à Argelès ; un adolescent disparaît, emporté à Céret ; tempête sur Cerbère et Banyuls.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1898,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 66."
+ },
+ {
+  "id": "tech-067",
+  "n": "T67",
+  "date": "10 mars 1899",
+  "titre": "Crue de mars 1899",
+  "resume": "Pluie et neige : le Tech déborde à Elne en aval du chemin de fer, sans dégâts importants.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1899,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 67."
+ },
+ {
+  "id": "tech-068",
+  "n": "T68",
+  "date": "20-21 janvier 1903",
+  "titre": "Inondations de janvier 1903",
+  "resume": "129 mm à Perpignan : Palau-del-Vidre et Montescot inondés ; à Collioure, une maison en terre s'effondre et tue un couple.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1903,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 68."
+ },
+ {
+  "id": "tech-069",
+  "n": "T69",
+  "date": "24 décembre 1906",
+  "titre": "Neige exceptionnelle et crue de la Baillaury",
+  "resume": "Jusqu'à 2 m de neige en Vallespir ; à Banyuls, la Baillaury rompt sa digue ; un chemineau se noie à Palalda.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1906,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 69."
+ },
+ {
+  "id": "tech-070",
+  "n": "T70",
+  "date": "12 octobre 1907",
+  "titre": "Catastrophe de 1907 à Amélie et Corsavy",
+  "resume": "Un abat d'eau sur le Canigou : quatre charbonniers emportés à Corsavy, six morts à Palalda sous la « vague » née d'un embâcle au pont d'Amélie.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1907,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 70."
+ },
+ {
+  "id": "tech-071",
+  "n": "T71",
+  "date": "5 novembre 1908",
+  "titre": "Inondation de Banyuls-sur-Mer",
+  "resume": "La Baillaury et la tempête inondent Banyuls ; passerelles emportées dans la vallée du Tech.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1908,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 71."
+ },
+ {
+  "id": "tech-072",
+  "n": "T72",
+  "date": "16-17 octobre 1911",
+  "titre": "Crue d'octobre 1911",
+  "resume": "La plus forte crue depuis 1907 : une femme emportée à Saint-Jean-Pla-de-Corts, usines privées d'électricité, plaine inondée.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1911,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 72."
+ },
+ {
+  "id": "tech-073",
+  "n": "T73",
+  "date": "27 et 28 avril 1912",
+  "titre": "Inondation d'avril 1912",
+  "resume": "Pluie et coup d'est : la Massane dévaste le faubourg des Tuileries à Argelès, le Tech déborde au Pas de la Barque à Elne.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1912,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 73."
+ },
+ {
+  "id": "tech-074",
+  "n": "T74",
+  "date": "29 septembre 1913",
+  "titre": "Catastrophe de Cerbère",
+  "resume": "Un abat d'eau sur les Albères maritimes : à Cerbère, la crue du Riberal provoque l'explosion d'un stock de carbure, 14 morts ; Banyuls ravagé par la Baillaury.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1913,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 74."
+ },
+ {
+  "id": "tech-076",
+  "n": "T76",
+  "date": "Décembre 1917",
+  "titre": "Crues de décembre 1917",
+  "resume": "Des crues endommagent les berges du Tech à Ortaffa, Palau et au Pas de la Barque, à Elne.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1917,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 76."
+ },
+ {
+  "id": "tech-077",
+  "n": "T77",
+  "date": "20 février 1920",
+  "titre": "Crue de février 1920",
+  "resume": "Fonte des neiges et tempête d'est : désastre sans précédent dans la plaine d'Elne, usines inondées à Céret, jetées submergées sur la côte.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1920,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 77."
+ },
+ {
+  "id": "tech-078",
+  "n": "T78",
+  "date": "26 octobre et 7 novembre 1920",
+  "titre": "Crues de l'automne 1920",
+  "resume": "Le Tech emporte le barrage de l'usine électrique du Boulou ; le Vall Pompo inonde Banyuls-sur-Mer.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1920,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 78."
+ },
+ {
+  "id": "tech-079",
+  "n": "T79",
+  "date": "14-15 décembre 1920",
+  "titre": "Inondation de Cerbère de décembre 1920",
+  "resume": "Le Riberal et le ravin des Balitres inondent Cerbère sous 1,30 m d'eau ; Banyuls de nouveau touché.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1920,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 79."
+ },
+ {
+  "id": "tech-080",
+  "n": "T80",
+  "date": "18 août 1921",
+  "titre": "Orage du 18 août 1921",
+  "resume": "170 mm à Perpignan : la basse plaine et toute la Côte Vermeille inondées, Argelès sous 1,50 m d'eau.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1921,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 80."
+ },
+ {
+  "id": "tech-081",
+  "n": "T81",
+  "date": "9 février 1930",
+  "titre": "Crue du Tech à Montesquieu",
+  "resume": "Une crue emporte 60 m de berge du canal de Palau-del-Vidre à Montesquieu.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1930,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 81."
+ },
+ {
+  "id": "tech-082",
+  "n": "T82",
+  "date": "1er au 10 mars 1930",
+  "titre": "Inondations de mars 1930",
+  "resume": "Pluie et tempête d'est : la plaine d'Elne, d'Ortaffa et d'Argelès sous l'eau, 17,5 millions de francs de dégâts estimés dans le département.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1930,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 82."
+ },
+ {
+  "id": "tech-083",
+  "n": "T83",
+  "date": "5 et 6 mars 1932",
+  "titre": "Crues sur le versant nord des Albères",
+  "resume": "Des pluies localisées font déborder les rivières de Villelongue et de Sorède ; maisons inondées à Collioure.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1932,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 83."
+ },
+ {
+  "id": "tech-084",
+  "n": "T84",
+  "date": "15 et 16 décembre 1932",
+  "titre": "Inondations de décembre 1932",
+  "resume": "380 mm à Perpignan en neuf jours : Palau-del-Vidre sous 1,60 m d'eau, habitants de la plage d'Argelès ravitaillés par avion, montagne en mouvement à Montferrer.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1932,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 84."
+ },
+ {
+  "id": "tech-085",
+  "n": "T85",
+  "date": "8 et 9 mai 1936",
+  "titre": "Crue de mai 1936",
+  "resume": "Une crue de printemps emporte barrages et canaux d'irrigation du Boulou à Argelès, sans inondation importante.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1936,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 85."
+ },
+ {
+  "id": "tech-086",
+  "n": "T86",
+  "date": "27 novembre 1936",
+  "titre": "Crue de novembre 1936",
+  "resume": "Neuf jours de pluie : le canal d'Ortaffa de nouveau emporté, la Massane et la Ribereta inondent Argelès, lacs dans les bas quartiers de Collioure.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1936,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 86."
+ },
+ {
+  "id": "tech-087",
+  "n": "T87",
+  "date": "25 octobre 1938",
+  "titre": "Inondation d'octobre 1938",
+  "resume": "La Massane coupe la voie ferrée ; 0,80 m d'eau dans les quartiers bas d'Argelès, bas du village de Palau-del-Vidre inondé.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1938,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 87."
+ },
+ {
+  "id": "tech-088",
+  "n": "T88",
+  "date": "18 décembre 1939",
+  "titre": "Inondation de Banyuls et Cerbère",
+  "resume": "La Baillaury, le Vall Pompo et le Riberal débordent : jusqu'à 2,30 m d'eau à Banyuls, 600 000 francs de pertes.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1939,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 88."
+ },
+ {
+  "id": "tech-090",
+  "n": "T90",
+  "date": "28 septembre 1941",
+  "titre": "Crue du Mondony de 1941",
+  "resume": "Le Mondony atteint 115 m³/s ; le pont provisoire et la canalisation d'eau de Saint-Jean-Pla-de-Corts emportés.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1941,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 90."
+ },
+ {
+  "id": "tech-091",
+  "n": "T91",
+  "date": "28 avril 1942",
+  "titre": "Crue d'avril 1942",
+  "resume": "Un mort à Prats-de-Mollo, maisons emportées aux Tamarins, pont Napoléon enseveli sous 3 m de gravier.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1942,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 91."
+ },
+ {
+  "id": "tech-092",
+  "n": "T92",
+  "date": "14 décembre 1943",
+  "titre": "Crue de décembre 1943",
+  "resume": "La RN 115 emportée en 6 points, Prats-de-Mollo isolé deux mois, ouvrages provisoires détruits.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1943,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 92."
+ },
+ {
+  "id": "tech-094",
+  "n": "T94",
+  "date": "4 février 1959",
+  "titre": "Neige et crue de février 1959",
+  "resume": "Le Tech à 3 m au pont de Céret, plaine d'Elne et d'Argelès inondée, 408 mm à Prats en 13 jours.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1959,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 94."
+ },
+ {
+  "id": "tech-095",
+  "n": "T95",
+  "date": "2 septembre 1959",
+  "titre": "Trombe d'eau sur la Côte Vermeille",
+  "resume": "191,6 mm à Perpignan, le Puig del Mas monte de 4 m en 30 min à Banyuls, 6 000 campeurs évacués.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1959,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 95."
+ },
+ {
+  "id": "tech-100",
+  "n": "T100",
+  "date": "29 novembre 1968",
+  "titre": "Crues de novembre-décembre 1968",
+  "resume": "Le Tech à 3,70 m au pont de Céret, 307 mm au Pas du Loup, RN 115 effondrée à Can Partère.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1968,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 100."
+ },
+ {
+  "id": "tech-101",
+  "n": "T101",
+  "date": "5 avril 1969",
+  "titre": "Crue d'avril 1969",
+  "resume": "189 mm à Arles-sur-Tech, la rivière de Sorède à 120 m³/s, une falaise s'effondre, maisons évacuées.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1969,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 101."
+ },
+ {
+  "id": "tech-103",
+  "n": "T103",
+  "date": "20 mai 1971",
+  "titre": "Orage sur Las Illas",
+  "resume": "Plus de 20 cm d'eau et de grêle en une demi-heure : coulées de boue, chemins détruits sur 500 m.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1971,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 103."
+ },
+ {
+  "id": "tech-104",
+  "n": "T104",
+  "date": "20 septembre 1971",
+  "titre": "Déluge sur la Côte Vermeille",
+  "resume": "220 à 420 mm en 10 h, deux morts, Collioure ravagée par le Douy, la moitié de la récolte de Banyuls perdue.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1971,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 104."
+ },
+ {
+  "id": "tech-106",
+  "n": "T106",
+  "date": "19 octobre 1977",
+  "titre": "Crue d'octobre 1977",
+  "resume": "249 mm à Amélie, le Tech à 494 m³/s, le pont de la RN 114 entre Elne et Argelès s'affaisse.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1977,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 106."
+ },
+ {
+  "id": "tech-107",
+  "n": "T107",
+  "date": "16 février 1982",
+  "titre": "Pluie et tempête de février 1982",
+  "resume": "219 mm en 36 h sur la côte, la Riberette rompt ses berges, RN 114 coupée à Argelès.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1982,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 107."
+ },
+ {
+  "id": "tech-110",
+  "n": "T110",
+  "date": "23 août 1987",
+  "titre": "Trombe de Laroque-des-Albères",
+  "resume": "Une trombe de 100 m de large dévaste le camping municipal : 7 blessés, 200 campeurs évacués.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1987,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 110."
+ },
+ {
+  "id": "tech-114",
+  "n": "T114",
+  "date": "1er novembre 1993",
+  "titre": "Déluge de la Toussaint 1993",
+  "resume": "200 mm à Banyuls, la digue de la Massane rompue sur 15 m, maison de retraite de Banyuls inondée.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1993,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 114."
+ },
+ {
+  "id": "tech-115",
+  "n": "T115",
+  "date": "16 décembre 1995",
+  "titre": "Pluie et tempête de décembre 1995",
+  "resume": "137 mm à Argelès, crue subite de la rivière de Reynès, plage du Racou ravinée.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1995,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 115."
+ },
+ {
+  "id": "tech-116",
+  "n": "T116",
+  "date": "9 décembre 1996",
+  "titre": "Crue du Tech de décembre 1996",
+  "resume": "Le Tech cerne le chantier du doublement du pont de la RN 114 à Elne ; déviation de La Preste coupée.",
+  "deps": [
+   "66"
+  ],
+  "annee": 1996,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 116."
+ },
+ {
+  "id": "tech-127",
+  "n": "T127",
+  "date": "21 mars 2015",
+  "titre": "Pluies de mars 2015",
+  "resume": "100 à 140 mm en 24 h, la Massane et l'agouille d'En Sallères débordent à Argelès, campings inondés.",
+  "deps": [
+   "66"
+  ],
+  "annee": 2015,
+  "source": "Aymat Catafau et Rubén Molina, Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècles), 2023, fiche-événement n° 127."
+ }
+]

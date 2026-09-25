@@ -1,0 +1,86 @@
+[
+ {
+  "id": "diren-01",
+  "n": "D1",
+  "date": "1264",
+  "titre": "Crue géante de 1264",
+  "annee": 1264,
+  "resume": "Crue de date inconnue, parfois comparée à 1940, qui aurait motivé la construction de ponts surdimensionnés comme celui de Céret.",
+  "deps": [
+   "66"
+  ],
+  "source": "DIREN Languedoc-Roussillon, Atlas des zones inondables du bassin versant du Tech, 2006 (chronologie des crues)."
+ },
+ {
+  "id": "diren-02",
+  "n": "D2",
+  "date": "14 octobre 1441",
+  "titre": "Destruction du pont du Boulou",
+  "annee": 1441,
+  "resume": "Le Tech détruit le pont de pierre « del Pilar » au Boulou.",
+  "deps": [
+   "66"
+  ],
+  "source": "DIREN Languedoc-Roussillon, Atlas des zones inondables du bassin versant du Tech, 2006 (chronologie des crues)."
+ },
+ {
+  "id": "diren-03",
+  "n": "D3",
+  "date": "18 décembre 1553",
+  "titre": "Crue de 1553 au Boulou",
+  "annee": 1553,
+  "resume": "Le pont du Boulou partiellement détruit (18 décembre, ou 28 octobre selon les sources).",
+  "deps": [
+   "66"
+  ],
+  "source": "DIREN Languedoc-Roussillon, Atlas des zones inondables du bassin versant du Tech, 2006 (chronologie des crues)."
+ },
+ {
+  "id": "diren-04",
+  "n": "D4",
+  "date": "12 décembre 1902",
+  "titre": "Crue de décembre 1902",
+  "annee": 1902,
+  "resume": "Le Tech déborde à Elne, Brouilla et Arles, emporte 4 ha à Ortaffa et y change de lit.",
+  "deps": [
+   "66"
+  ],
+  "source": "DIREN Languedoc-Roussillon, Atlas des zones inondables du bassin versant du Tech, 2006 (chronologie des crues)."
+ },
+ {
+  "id": "diren-05",
+  "n": "D5",
+  "date": "13 septembre 1963",
+  "titre": "Crues de septembre et décembre 1963",
+  "annee": 1963,
+  "resume": "Érosion des berges en aval de Céret ; anses d'érosion menaçant Latour-Bas-Elne et Saint-Cyprien.",
+  "deps": [
+   "66"
+  ],
+  "source": "DIREN Languedoc-Roussillon, Atlas des zones inondables du bassin versant du Tech, 2006 (chronologie des crues)."
+ },
+ {
+  "id": "diren-06",
+  "n": "D6",
+  "date": "24 décembre 1964",
+  "titre": "Crue de Noël 1964",
+  "annee": 1964,
+  "resume": "Crue moyenne qui aggrave les dégâts des berges du Tech inférieur.",
+  "deps": [
+   "66"
+  ],
+  "source": "DIREN Languedoc-Roussillon, Atlas des zones inondables du bassin versant du Tech, 2006 (chronologie des crues)."
+ },
+ {
+  "id": "diren-07",
+  "n": "D7",
+  "date": "3 décembre 1991",
+  "titre": "Pluies de décembre 1991",
+  "annee": 1991,
+  "resume": "Trois jours de pluie sans orage ; le Tech dépasse à peine 500 m³/s.",
+  "deps": [
+   "66"
+  ],
+  "source": "DIREN Languedoc-Roussillon, Atlas des zones inondables du bassin versant du Tech, 2006 (chronologie des crues)."
+ }
+]
