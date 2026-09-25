@@ -14,6 +14,8 @@ for _f in sorted(__import__('glob').glob(os.path.join(os.path.dirname(os.path.ab
 # Mode validation : affiche le texte original de Météo-France dans un bloc repliable (à désactiver après relecture)
 VALIDATION = os.environ.get('VALIDATION', '1') == '1'
 ARTICLES = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'articles')
+COMPLEMENTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'complements')
+EXTRA = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'extra')
 def md(txt):
     """Markdown minimal : titres ##/###, listes, gras, italique, paragraphes."""
     out, ul = [], False
@@ -176,13 +178,17 @@ footer{color:var(--mut);font-size:.85em}nav a{margin-right:14px}
 svg path{fill:var(--dep);stroke:var(--card);stroke-width:1.5;cursor:pointer}svg path.on{fill:var(--sel)}svg path:hover{opacity:.75}
 .regions{display:flex;flex-wrap:wrap;gap:6px}.regions button{border:1px solid var(--bd);background:var(--card);color:var(--fg);border-radius:14px;padding:3px 10px;cursor:pointer;font-size:.85em}
 .regions button.on{background:var(--sel);color:#fff}.annees{display:flex;gap:8px;align-items:center;margin:12px 0}.annees input{width:90px;padding:6px}"""
-PIED = """<footer>Source : Météo-France – pluiesextremes.meteo.fr, archive Internet Archive du 09/11/2022. Résumés établis à partir des fiches originales, départements déduits automatiquement du texte ; les données appartiennent à Météo-France. Mise en forme : <a href="https://www.alertes-meteo.com">Alertes Météo</a>.</footer>"""
+PIED = """<footer>Source : Météo-France – pluiesextremes.meteo.fr, archive Internet Archive du 09/11/2022. Résumés établis à partir des fiches originales, départements déduits automatiquement du texte ; les données appartiennent à Météo-France. Événements complémentaires et compléments historiques du bassin du Tech : A. Catafau et R. Molina, <i>Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècle)</i>, PAPI Tech-Albères, 2023 ; DIREN Languedoc-Roussillon, <i>Atlas des zones inondables du bassin versant du Tech</i>, 2006. Mise en forme : <a href="https://www.alertes-meteo.com">Alertes Météo</a>.</footer>"""
 def doc(titre, corps, pre=''):
     return (f'<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>{html.escape(titre)}</title><link rel="stylesheet" href="{pre}style.css"></head><body><header><nav>'
             f'<a href="{pre}index.html">Événements majeurs</a><a href="{pre}carte.html">Recherche sur carte</a><a href="{pre}tous.html">Tous les événements</a>'
             f'<a target="_blank" rel="noopener" href="https://www.alertes-meteo.com">alertes-meteo.com</a></nav><h1>{html.escape(titre)}</h1></header><main>{corps}</main>{PIED}</body></html>')
 open(os.path.join(ROOT, 'style.css'), 'w').write(CSS)
+
+def complement(slug):
+    f = os.path.join(COMPLEMENTS, slug + '.md')
+    return f'<div class="fiche article"><h2>Compléments historiques</h2>{md(open(f, encoding="utf-8").read())}</div>' if os.path.exists(f) else ''
 
 def annee(date):
     a = re.findall(r'\b(1[5-9]\d\d|20\d\d)\b', date)
@@ -210,7 +216,7 @@ for i, e in enumerate(tous, 1):
                  f'<h2>Résumé</h2><h3>{html.escape(rr["titre"])}</h3><p>{html.escape(rr["texte"])}</p>'
                  f'<h2>Cumuls les plus élevés</h2><table>{cum2}</table>'
                  f'<h2>Départements concernés</h2><p>{", ".join(f"{NOMS[x]} ({x})" for x in deps) or "non déterminés"}</p></div>'
-                 + article +
+                 + article + complement(slug) +
                  f'<p><a target="_blank" rel="noopener" href="{ARCH}{BASE}{e["slug"]}">Consulter la fiche complète de Météo-France (archive)</a></p>')
     else:
       corps = (f'<p><b>{html.escape(e["date"])}</b>{" <span class=badge>Événement majeur</span>" if maj else ""}</p><div class="fiche">'
@@ -229,6 +235,20 @@ for i, e in enumerate(tous, 1):
     index.append({'n': n, 'date': e['date'], 'titre': e['titre'], 'annee': annee(e['date']), 'url': f'evenements/{n}_{slug}/',
                   'majeur': maj, 'deps': deps, 'max_mm': r['cumuls'][0][0] if r['cumuls'] else None})
     print('ok', n, len(deps), flush=True)
+
+# Événements complémentaires hors archive Météo-France (études historiques)
+for f in sorted(__import__('glob').glob(os.path.join(EXTRA, '*.json'))):
+    for e in json.load(open(f, encoding='utf-8')):
+        slug = e['id']; d = os.path.join(EV, slug); os.makedirs(d, exist_ok=True)
+        art = os.path.join(ARTICLES, slug + '.md')
+        article = f'<div class="fiche article"><h2>Article</h2>{md(open(art, encoding="utf-8").read())}</div>' if os.path.exists(art) else ''
+        corps = (f'<p><b>{html.escape(e["date"])}</b></p><div class="fiche"><h2>Résumé</h2><h3>{html.escape(e["titre"])}</h3><p>{html.escape(e["resume"])}</p>'
+                 f'<h2>Départements concernés</h2><p>{", ".join(f"{NOMS[x]} ({x})" for x in e["deps"])}</p></div>' + article +
+                 f'<div class="fiche"><h2>Source</h2><p>{html.escape(e["source"])}</p></div>')
+        open(os.path.join(d, 'index.html'), 'w', encoding='utf-8').write(doc(f'{e["date"]} – {e["titre"]}', corps, '../../'))
+        index.append({'n': e['n'], 'date': e['date'], 'titre': e['titre'], 'annee': e['annee'], 'url': f'evenements/{slug}/',
+                      'majeur': False, 'deps': e['deps'], 'max_mm': e.get('max_mm')})
+index.sort(key=lambda r: -(r['annee'] or 0))
 
 json.dump(index, open(os.path.join(ROOT, 'index.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 
