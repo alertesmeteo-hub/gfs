@@ -178,7 +178,8 @@ footer{color:var(--mut);font-size:.85em}nav a{margin-right:14px}
 svg path{fill:var(--dep);stroke:var(--card);stroke-width:1.5;cursor:pointer}svg path.on{fill:var(--sel)}svg path:hover{opacity:.75}
 .regions{display:flex;flex-wrap:wrap;gap:6px}.regions button{border:1px solid var(--bd);background:var(--card);color:var(--fg);border-radius:14px;padding:3px 10px;cursor:pointer;font-size:.85em}
 .regions button.on{background:var(--sel);color:#fff}.annees{display:flex;gap:8px;align-items:center;margin:12px 0}.annees input{width:90px;padding:6px}"""
-PIED = """<footer>Source : Météo-France – pluiesextremes.meteo.fr, archive Internet Archive du 09/11/2022. Résumés établis à partir des fiches originales, départements déduits automatiquement du texte ; les données appartiennent à Météo-France. Événements complémentaires et compléments historiques du bassin du Tech : A. Catafau et R. Molina, <i>Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècle)</i>, PAPI Tech-Albères, 2023 ; DIREN Languedoc-Roussillon, <i>Atlas des zones inondables du bassin versant du Tech</i>, 2006. Mise en forme : <a href="https://www.alertes-meteo.com">Alertes Météo</a>.</footer>"""
+PIED = ""
+_ANCIEN_PIED = """<footer>Source : Météo-France – pluiesextremes.meteo.fr, archive Internet Archive du 09/11/2022. Résumés établis à partir des fiches originales, départements déduits automatiquement du texte ; les données appartiennent à Météo-France. Événements complémentaires et compléments historiques du bassin du Tech : A. Catafau et R. Molina, <i>Étude historique des inondations du bassin versant du Tech et des fleuves côtiers des Albères (XIVe-XXIe siècle)</i>, PAPI Tech-Albères, 2023 ; DIREN Languedoc-Roussillon, <i>Atlas des zones inondables du bassin versant du Tech</i>, 2006. Mise en forme : <a href="https://www.alertes-meteo.com">Alertes Météo</a>.</footer>"""
 def doc(titre, corps, pre=''):
     return (f'<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>{html.escape(titre)}</title><link rel="stylesheet" href="{pre}style.css"></head><body><header><nav>'
@@ -230,7 +231,7 @@ for i, e in enumerate(tous, 1):
         orig = ''.join(f'<p>{html.escape(x)}</p>' for x in t.split('\n') if x.strip())
         corps = corps.replace('<div class="fiche"><h2>Relevés détaillés', f'<details class="fiche orig"><summary><b>Texte original Météo-France (validation)</b> – cliquer pour afficher</summary>{orig}</details><div class="fiche"><h2>Relevés détaillés', 1)
     lien = f'<p class="source"><a class="btn" target="_blank" rel="noopener" href="{ARCH}{BASE}{e["slug"]}">Consulter la fiche complète de Météo-France (archive) ↗</a></p>'
-    corps = lien + corps
+    corps = __import__('re').sub(r'<p><a target="_blank" rel="noopener" href="[^"]*">Consulter la fiche complète de Météo-France \(archive\)</a></p>', '', corps)
     open(os.path.join(d, 'index.html'), 'w', encoding='utf-8').write(doc(f'{e["date"]} – {e["titre"]}', corps, '../../'))
     index.append({'n': n, 'date': e['date'], 'titre': e['titre'], 'annee': annee(e['date']), 'url': f'evenements/{n}_{slug}/',
                   'majeur': maj, 'deps': deps, 'max_mm': r['cumuls'][0][0] if r['cumuls'] else None})
