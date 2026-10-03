@@ -67,7 +67,7 @@ jobs:
           assert maps["layers"]["temperature"]["secondary"] is False
           assert maps["layers"]["temperature_10"]["secondary"] is True
           assert maps["layers"]["vent_850"]["vector_label"]
-          assert len(maps["steps"]) == 81
+          assert len(maps["steps"]) == index["model"]["forecast_hours_requested"] // 3 + 1
           assert (root / "departements/66.json").is_file()
           assert index["model"]["forecast_hours_requested"] == 360
           from datetime import datetime, timedelta
