@@ -356,7 +356,7 @@ def load_catalog(path: Path) -> NationalCatalog:
     )
 
 
-def already_published(url: str, run_time: datetime | None) -> bool:
+def already_published(url: str, run_time: datetime | None, hours: int | None = None) -> bool:
     if not url or run_time is None:
         return False
     try:
@@ -369,9 +369,14 @@ def already_published(url: str, run_time: datetime | None) -> bool:
             return False
         payload = response.json()
         model = payload.get("model") or {}
+        published_run = str(model.get("run_time") or "")
+        # Même run : on ne le republie que si l'on peut maintenant aller plus loin.
+        if published_run == iso_utc(run_time) and hours is not None:
+            if int(model.get("forecast_hours_requested") or 0) < hours:
+                return False
         return (
             payload.get("status") == "ok"
-            and str(model.get("run_time") or "") >= iso_utc(run_time)
+            and published_run >= iso_utc(run_time)
             and model.get("pipeline_version") == PIPELINE_VERSION
         )
     except (requests.RequestException, ValueError, TypeError):
@@ -1463,18 +1468,40 @@ def gfs_run_available(run_time: datetime, forecast_hours: int) -> bool:
     return True
 
 
+MIN_PARTIAL_HOURS = 72
+
+
+def gfs_available_hours(run_time: datetime, forecast_hours: int) -> int:
+    """Dernière échéance déjà déposée par NOAA (recherche dichotomique), -1 si rien."""
+    if not gfs_run_available(run_time, 0):
+        return -1
+    low, high = 0, forecast_hours // 3
+    while low < high:
+        middle = (low + high + 1) // 2
+        if gfs_run_available(run_time, middle * 3):
+            low = middle
+        else:
+            high = middle - 1
+    return low * 3
+
+
 def select_ready_run(metadata_url: str, forecast_hours: int, force: bool = False,
-                     now: datetime | None = None) -> datetime | None:
+                     now: datetime | None = None) -> tuple[datetime, int] | None:
     candidate = latest_gfs_run_hint(now)
     # Le cycle précédent peut être prêt alors que le cycle nominal démarre.
     for offset in range(3):
         run = candidate - timedelta(hours=6 * offset)
-        if not force and already_published(metadata_url, run):
+        hours = forecast_hours
+        if not gfs_run_available(run, forecast_hours):
+            hours = gfs_available_hours(run, forecast_hours)
+            if hours < MIN_PARTIAL_HOURS:
+                LOGGER.info("Run %s trop incomplet (+%s h) ; nouvelle vérification au prochain passage", iso_utc(run), hours)
+                continue
+            LOGGER.info("Run %s incomplet : publication tronquée à +%s h", iso_utc(run), hours)
+        if not force and already_published(metadata_url, run, hours):
             LOGGER.info("Run %s déjà publié ; aucune reconstruction", iso_utc(run))
             return None
-        if gfs_run_available(run, forecast_hours):
-            return run
-        LOGGER.info("Run %s incomplet ; nouvelle vérification au prochain passage", iso_utc(run))
+        return run, hours
     return None
 
 
@@ -1776,10 +1803,11 @@ def main() -> int:
     if args.forecast_hours % 3:
         raise ValueError("forecast-hours doit être un multiple de 3")
     catalog = load_catalog(Path(args.catalog))
-    run_hint = select_ready_run(args.current_metadata_url, args.forecast_hours, args.force)
-    if run_hint is None:
-        LOGGER.info("Aucun nouveau run complet à publier")
+    selected = select_ready_run(args.current_metadata_url, args.forecast_hours, args.force)
+    if selected is None:
+        LOGGER.info("Aucun nouveau run à publier")
         return 0
+    run_hint, hours = selected
     LOGGER.info("Run GFS sélectionné : %s", iso_utc(run_hint))
 
     with tempfile.TemporaryDirectory(
@@ -1787,7 +1815,7 @@ def main() -> int:
     ) as temporary:
         result = build_product(
             catalog,
-            args.forecast_hours,
+            hours,
             Path(temporary),
             run_hint,
         )
