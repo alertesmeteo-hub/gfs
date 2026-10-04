@@ -69,14 +69,15 @@ jobs:
           assert maps["layers"]["vent_850"]["vector_label"]
           assert len(maps["steps"]) == index["model"]["forecast_hours_requested"] // 3 + 1
           assert (root / "departements/66.json").is_file()
-          assert index["model"]["forecast_hours_requested"] == 360
+          hours = index["model"]["forecast_hours_requested"]
+          assert hours >= 72 and hours % 3 == 0  # run tronqué accepté (publication progressive NOAA)
           from datetime import datetime, timedelta
           department = json.loads((root / "departements/66.json").read_text(encoding="utf-8"))
           run = datetime.fromisoformat(index["model"]["run_time"].replace("Z", "+00:00"))
           end = datetime.fromisoformat(department["forecast"][-1][0].replace("Z", "+00:00"))
           assert department["rain_radius_km"] == 10
-          assert end == run + timedelta(hours=360)
-          assert len(department["forecast"]) == 121
+          assert end == run + timedelta(hours=hours)
+          assert len(department["forecast"]) == hours // 3 + 1
           print(
               f"Validation OK : {len(maps['layers'])} cartes, "
               f"{len(maps['steps'])} échéances, "
