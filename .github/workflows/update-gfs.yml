@@ -67,7 +67,8 @@ jobs:
           assert maps["layers"]["temperature"]["secondary"] is False
           assert maps["layers"]["temperature_10"]["secondary"] is True
           assert maps["layers"]["vent_850"]["vector_label"]
-          assert len(maps["steps"]) == index["model"]["forecast_hours_requested"] // 3 + 1
+          # les cartes ne sont rendues que jusqu'à +240 h (au-delà : données par commune seulement)
+          assert len(maps["steps"]) == min(index["model"]["forecast_hours_requested"], 240) // 3 + 1
           assert (root / "departements/66.json").is_file()
           hours = index["model"]["forecast_hours_requested"]
           assert hours >= 72 and hours % 3 == 0  # run tronqué accepté (publication progressive NOAA)
