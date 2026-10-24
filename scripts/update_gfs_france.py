@@ -15,6 +15,7 @@ import math
 import os
 import shutil
 import tempfile
+import time
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -1453,20 +1454,51 @@ def latest_gfs_run_hint(now: datetime | None = None) -> datetime:
     )
 
 
+def fetch_gfs_index(url: str) -> tuple[int, str]:
+    """Lit un index NOAA en répétant les coupures et réponses temporaires."""
+    last_error: requests.RequestException | None = None
+    for attempt in range(1, 4):
+        try:
+            response = requests.get(
+                url, timeout=(10, 30), headers={"User-Agent": USER_AGENT}
+            )
+            try:
+                status_code = response.status_code
+                if status_code == 429 or 500 <= status_code < 600:
+                    response.raise_for_status()
+                return status_code, response.text
+            finally:
+                response.close()
+        except requests.RequestException as error:
+            last_error = error
+            if attempt == 3:
+                break
+            delay_seconds = attempt * 5
+            LOGGER.warning(
+                "Index NOAA interrompu (%s/3), nouvel essai dans %s s : %s",
+                attempt,
+                delay_seconds,
+                error,
+            )
+            time.sleep(delay_seconds)
+    assert last_error is not None
+    raise last_error
+
+
 def gfs_run_available(run_time: datetime, forecast_hours: int) -> bool:
     """Vérifie les index légers du début et de la fin du run demandé."""
     base = (f"https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/"
             f"gfs.{run_time:%Y%m%d}/{run_time.hour:02d}/atmos")
     for lead in (0, forecast_hours):
         url = f"{base}/gfs.t{run_time.hour:02d}z.pgrb2.0p25.f{lead:03d}.idx"
-        response = requests.get(url, timeout=(10, 30), headers={"User-Agent": USER_AGENT})
-        if response.status_code in (403, 404):
+        status_code, index_text = fetch_gfs_index(url)
+        if status_code in (403, 404):
             return False
-        response.raise_for_status()
-        if ":TMP:2 m above ground:" not in response.text:
+        if not 200 <= status_code < 300:
+            raise requests.HTTPError(f"HTTP {status_code} : {url}")
+        if ":TMP:2 m above ground:" not in index_text:
             raise RuntimeError(f"Index NOAA inattendu : {url}")
     return True
-
 
 MIN_PARTIAL_HOURS = 72
 
